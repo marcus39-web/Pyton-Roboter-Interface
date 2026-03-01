@@ -35,6 +35,10 @@ class BrainBotRemote:
             message = f"Verbindungsfehler: {e}"
             print(f"✗ {message}")
             self._log("ERROR", message)
+            # Socket zurücksetzen bei Fehler
+            if self.socket:
+                self.socket.close()
+                self.socket = None
             return False
 
     def send_command(self, command):
