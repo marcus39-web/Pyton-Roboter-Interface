@@ -298,7 +298,7 @@ Copyright (c) 2026 Marcus Weber
 
 ## Autor
 
-**Marcus Weber**  
+**Marcus Reiser**  
 GitHub: [@marcus39-web](https://github.com/marcus39-web)  
 Projekt: [Pyton-Roboter-Interface](https://github.com/marcus39-web/Pyton-Roboter-Interface)
 
