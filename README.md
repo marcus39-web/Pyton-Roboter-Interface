@@ -40,3 +40,30 @@ def check_safety(distance_string):
 
 **Hinweis:**  
 Erwartetes Format für `distance_string`: `DIST:18.5`
+
+## Beispiel: KI-Entscheidung und STOP-Befehl (PC-Seite)
+
+```python
+# EMPFANG: Wir warten auf Daten vom SC20100S Modul
+raw_data = socket.receive()
+
+# ANALYSE: Die KI prüft den Wert (Machine Learning Modell)
+prediction = my_model.predict(raw_data)
+
+# KORREKTUR: Wenn Gefahr > 80%, sende STOP-Befehl per WLAN
+if prediction > 0.8:
+    socket.send("CMD_STOP")
+```
+
+## Beispiel: Ausführung auf dem Roboter (C#-Seite)
+
+```csharp
+// EMPFANG: Der Befehl kommt vom PC über die 3 Antennen rein
+string command = wifiModule.Read();
+
+// REAKTION: C# setzt den KI-Befehl direkt in Strom für die Motoren um
+if (command == "CMD_STOP") {
+    MotorDriver.Halt();              // Sofortiger Stopp
+    LedRing.SetColor(Orange);        // LED-Ring zeigt 'Eingriff der KI'
+}
+```
