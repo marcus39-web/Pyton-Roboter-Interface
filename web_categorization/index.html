@@ -58,7 +58,13 @@
         <label>&nbsp;</label>
         <button id="exportBtn">JPG EXPORT</button>
       </div>
+      <div class="field" style="justify-content: flex-end;">
+        <label>&nbsp;</label>
+        <button id="downloadBtn" disabled>DOWNLOAD LETZTER JPG</button>
+      </div>
     </div>
+
+    <div id="lastExportInfo" class="status">Letzter Export: -</div>
 
     <div class="cards">
       <div class="card"><div>Gesamt</div><div id="totalAll" class="num">0</div></div>
@@ -93,6 +99,9 @@
     const statusEl = document.getElementById('status');
     const blocksBody = document.getElementById('blocksBody');
     const recentBody = document.getElementById('recentBody');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const lastExportInfoEl = document.getElementById('lastExportInfo');
+    let lastDownloadUrl = '';
 
     function setStatus(text) {
       statusEl.textContent = text;
@@ -171,12 +180,24 @@
         });
         if (data.ok) {
           setStatus(`Status: ${data.message}`);
+          lastDownloadUrl = data.download_url || '';
+          downloadBtn.disabled = !lastDownloadUrl;
+          lastExportInfoEl.textContent = `Letzter Export: ${data.filename || '-'} | Erstellt am: ${data.created_at || '-'}`;
         } else {
           setStatus(`Status: Export fehlgeschlagen: ${data.message}`);
         }
       } catch {
         setStatus('Status: Export-API nicht erreichbar');
       }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (!lastDownloadUrl) {
+        setStatus('Status: Kein Export zum Download vorhanden');
+        return;
+      }
+
+      window.location.href = lastDownloadUrl;
     });
 
     refresh();

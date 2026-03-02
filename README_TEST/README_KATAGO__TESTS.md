@@ -143,6 +143,7 @@ pytest tests/ -v
   - Eine `.jpg` Datei wurde erzeugt.
   - Dateiname enthält Zimmername und Zeitraum.
   - Datei enthält Text: `Erstellt am`, Zimmername, Vermaßung.
+  - `DOWNLOAD LETZTER JPG` lädt die zuletzt erstellte Datei direkt herunter.
 
 ## Ergebnisprotokoll (Vorlage)
 

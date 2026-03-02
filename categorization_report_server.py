@@ -1,11 +1,10 @@
 import argparse
 import json
-from collections import defaultdict
 from datetime import datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse, unquote
 
 from categorization_db import CategorizationDatabase
 
@@ -236,6 +235,7 @@ class CategorizationReportService:
             "ok": True,
             "message": f"JPG-Report erstellt: {filename}",
             "filename": filename,
+            "download_url": f"/exports/{filename}",
             "created_at": created_at,
             "room_name": room_name,
             "room_width_cm": room_width_cm,
@@ -270,8 +270,36 @@ class CategorizationHandler(BaseHTTPRequestHandler):
             return {}
         return json.loads(self.rfile.read(length).decode("utf-8"))
 
+    def _send_jpg_file(self, file_path: Path) -> None:
+        raw = file_path.read_bytes()
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "image/jpeg")
+        self.send_header("Content-Length", str(len(raw)))
+        self.send_header("Content-Disposition", f'attachment; filename="{file_path.name}"')
+        self.end_headers()
+        self.wfile.write(raw)
+
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
+
+        if parsed.path.startswith("/exports/"):
+            if self.service is None:
+                self._send_json({"ok": False, "message": "service nicht initialisiert"}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                return
+
+            requested_name = unquote(parsed.path.removeprefix("/exports/")).strip()
+            safe_name = Path(requested_name).name
+            if not safe_name.lower().endswith(".jpg"):
+                self._send_json({"ok": False, "message": "nur JPG erlaubt"}, status=HTTPStatus.BAD_REQUEST)
+                return
+
+            target = self.service.export_dir / safe_name
+            if not target.exists():
+                self._send_json({"ok": False, "message": "Datei nicht gefunden"}, status=HTTPStatus.NOT_FOUND)
+                return
+
+            self._send_jpg_file(target)
+            return
 
         if parsed.path in ("/", "/index.html"):
             index_file = self.web_dir / "index.html"
