@@ -52,34 +52,73 @@
   <script>
     // Statusanzeige für Rückmeldungen aus der API.
     const statusEl = document.getElementById('status');
+    let isConnected = false;
+    let emergencyInProgress = false;
 
     // Gemeinsamer API-Aufruf für alle Steueraktionen.
     async function call(path, body) {
-      const res = await fetch(path, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body || {})
-      });
-      return await res.json();
+      try {
+        const res = await fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body || {})
+        });
+        return await res.json();
+      } catch {
+        return { ok: false, message: 'Netzwerkfehler zur Steuer-API', connected: false };
+      }
     }
 
     function setStatus(text) {
       statusEl.textContent = text;
     }
 
+    // Gateway-Status zentral aus API-Antworten übernehmen.
+    function syncConnectionState(data) {
+      if (typeof data?.connected === 'boolean') {
+        isConnected = data.connected;
+      }
+    }
+
     async function connect() {
       const data = await call('/api/connect');
+      syncConnectionState(data);
       setStatus(`Status: ${data.message}`);
     }
 
     async function disconnect() {
       const data = await call('/api/disconnect');
+      syncConnectionState(data);
       setStatus(`Status: ${data.message}`);
     }
 
-    async function sendCommand(command) {
+    async function sendCommand(command, useEmergencyOnFail = true) {
       const data = await call('/api/command', { command });
+      syncConnectionState(data);
       setStatus(`Status: ${data.message}`);
+
+      // Fallback-Sicherheit: Bei Fehlern sofort Not-Aus auslösen.
+      if (!data.ok && useEmergencyOnFail && isConnected) {
+        await emergencyStop('command_failed');
+      }
+
+      return data;
+    }
+
+    async function emergencyStop(reason = 'manual') {
+      if (emergencyInProgress) {
+        return;
+      }
+      emergencyInProgress = true;
+
+      // Laufende Hold-Bewegung lokal sofort beenden.
+      stopHoldCommand(false);
+
+      const data = await call('/api/emergency-stop', { reason });
+      syncConnectionState(data);
+      setStatus(`Status: ${data.message}`);
+
+      emergencyInProgress = false;
     }
 
     // Wiederholtes Senden hält die Bewegung stabil aktiv, bis losgelassen wird.
@@ -116,7 +155,7 @@
 
       // Sicherheitsverhalten: Beim Loslassen immer STOP.
       if (sendStop) {
-        sendCommand('STOP');
+        sendCommand('STOP', false);
       }
     }
 
@@ -124,8 +163,7 @@
     document.getElementById('connectBtn').addEventListener('click', connect);
     document.getElementById('disconnectBtn').addEventListener('click', disconnect);
     document.getElementById('stopBtn').addEventListener('click', () => {
-      stopHoldCommand(false);
-      sendCommand('STOP');
+      emergencyStop('stop_button');
     });
 
     document.querySelectorAll('.cmd').forEach(btn => {
@@ -134,8 +172,7 @@
       // STOP/HALT bleibt ein einfacher Klick.
       if (command === 'STOP') {
         btn.addEventListener('click', () => {
-          stopHoldCommand(false);
-          sendCommand('STOP');
+          emergencyStop('halt_button');
         });
         return;
       }
@@ -175,8 +212,7 @@
       }
       if (key === ' ') {
         event.preventDefault();
-        stopHoldCommand(false);
-        sendCommand('STOP');
+        emergencyStop('keyboard_space');
         return;
       }
 
@@ -198,7 +234,24 @@
     });
 
     // Sicherheitsnetz, falls Tab/Fenster den Fokus verliert.
-    window.addEventListener('blur', () => stopHoldCommand(true));
+    window.addEventListener('blur', () => {
+      if (isConnected) {
+        emergencyStop('window_blur');
+      }
+    });
+
+    // iPhone/Browser-Wechsel absichern: Beim Verlassen oder Ausblenden Not-Aus.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && isConnected) {
+        emergencyStop('visibility_hidden');
+      }
+    });
+
+    window.addEventListener('beforeunload', () => {
+      if (isConnected) {
+        emergencyStop('before_unload');
+      }
+    });
   </script>
 </body>
 </html>

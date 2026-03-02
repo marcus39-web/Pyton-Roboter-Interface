@@ -31,6 +31,9 @@ class RobotGateway:
         with self._lock:
             if not self.connected:
                 return True, "bereits getrennt"
+
+            # Vor dem Trennen sicherheitshalber einen STOP senden.
+            self._robot.send_command("STOP")
             self._robot.disconnect()
             self.connected = False
             return True, "Verbindung getrennt"
@@ -42,7 +45,26 @@ class RobotGateway:
             success = self._robot.send_command(command)
             if success:
                 return True, f"Befehl gesendet: {command}"
+
+            # Bei Sendeproblem Zustand auf getrennt setzen,
+            # damit UI keine weiteren Bewegungsbefehle im Blindflug sendet.
+            self._robot.disconnect()
+            self.connected = False
             return False, f"Senden fehlgeschlagen: {command}"
+
+    def emergency_stop(self) -> tuple[bool, str]:
+        """Not-Aus: Stoppt Bewegung sofort und trennt die Verbindung kontrolliert."""
+        with self._lock:
+            if not self.connected:
+                return True, "Not-Aus bestätigt (bereits getrennt)"
+
+            stop_ok = self._robot.send_command("STOP")
+            self._robot.disconnect()
+            self.connected = False
+
+            if stop_ok:
+                return True, "Not-Aus ausgeführt: STOP gesendet und Verbindung getrennt"
+            return False, "Not-Aus versucht: Verbindung getrennt, STOP-Bestätigung fehlt"
 
 
 class ControlHandler(BaseHTTPRequestHandler):
@@ -92,14 +114,24 @@ class ControlHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": False, "message": "gateway nicht initialisiert"}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
             return
 
+        if self.path == "/api/status":
+            self._send_json({"ok": True, "message": "status", "connected": self.gateway.connected})
+            return
+
         if self.path == "/api/connect":
             ok, message = self.gateway.connect()
-            self._send_json({"ok": ok, "message": message})
+            self._send_json({"ok": ok, "message": message, "connected": self.gateway.connected})
             return
 
         if self.path == "/api/disconnect":
             ok, message = self.gateway.disconnect()
-            self._send_json({"ok": ok, "message": message})
+            self._send_json({"ok": ok, "message": message, "connected": self.gateway.connected})
+            return
+
+        if self.path == "/api/emergency-stop":
+            # Unabhängig vom Request-Body immer sofort Not-Aus ausführen.
+            ok, message = self.gateway.emergency_stop()
+            self._send_json({"ok": ok, "message": message, "connected": self.gateway.connected})
             return
 
         if self.path == "/api/command":
@@ -115,7 +147,7 @@ class ControlHandler(BaseHTTPRequestHandler):
                 return
 
             ok, message = self.gateway.send(command)
-            self._send_json({"ok": ok, "message": message})
+            self._send_json({"ok": ok, "message": message, "connected": self.gateway.connected})
             return
 
         self._send_json({"ok": False, "message": "not found"}, status=HTTPStatus.NOT_FOUND)

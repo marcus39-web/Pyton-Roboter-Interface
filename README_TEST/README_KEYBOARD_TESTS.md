@@ -46,10 +46,13 @@ Wichtig: Einmal in die Webseite klicken, damit Tastaturfokus aktiv ist.
 2. `W`, `A`, `D`, `S` nacheinander drücken
 3. `Leertaste` drücken (Not-Stopp)
 4. `Q` drücken (Disconnect)
+5. Verbindung aktivieren, dann Browserfenster wechseln → Auto-Not-Aus prüfen
 
 ## Erwartetes Ergebnis
 
 Im Mock-Server erscheinen die Befehle in derselben Reihenfolge.
+
+Beim Fenster-/Tab-Wechsel während aktiver Verbindung wird zusätzlich ein `STOP` ausgelöst.
 
 Beispiel:
 

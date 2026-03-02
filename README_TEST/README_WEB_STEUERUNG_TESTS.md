@@ -74,6 +74,7 @@ Wichtig für die aktuelle Steuerlogik:
 
 1. `STOP` drücken.
 2. Mock-Server zeigt `STOP`.
+3. Status bestätigt Not-Aus und Verbindungstrennung.
 
 ### Test 4: Tastatur
 
@@ -94,6 +95,12 @@ Zusatzprüfung:
 
 1. `DISCONNECT` drücken.
 2. Status sollte `Verbindung getrennt` anzeigen.
+
+### Test 6: Auto-Not-Aus bei App-Wechsel
+
+1. Verbindung aktiv halten und z. B. `VOR` gedrückt halten.
+2. Browser-Tab wechseln oder App in den Hintergrund schicken.
+3. Es muss automatisch ein `STOP` gesendet werden.
 
 ## Troubleshooting
 
