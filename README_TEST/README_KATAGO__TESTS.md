@@ -171,3 +171,13 @@ Die Kategorisierung gilt als testbar dokumentiert, wenn:
 - für Ausgabe/Export zusätzlich KAT-07 und KAT-08 erfolgreich sind,
 - Ergebnisse protokolliert sind,
 - bei FAIL ein reproduzierbarer Schritt im Notizfeld vorhanden ist.
+
+## Projektabschluss-Stand (02.03.2026)
+
+- Kategorisierungsausgabe mit Zeitblöcken (Tag/Woche/Monat/Jahr) ist implementiert.
+- Raum-Draufsicht mit DIN-ähnlicher Vermaßung (schematisch) ist sichtbar.
+- Erweiterte Geometrie (Radius, Aussparung Seite/Breite/Tiefe) ist in UI und JPG-Export integriert.
+- Export-Historie und Direkt-Download der JPG-Dateien sind aktiv.
+- Lesbarkeitsfix für den unteren Vermaßungstext ist umgesetzt.
+
+Dieser Stand wurde als finaler Dokumentationsstand gespeichert und auf GitHub gepusht.
