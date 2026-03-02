@@ -12,8 +12,8 @@ __pycache__/
 venv/
 env/
 
-# VS Code
-.vscode/
+# VS Code - Auskommentiert, da Schulprojekt
+# .vscode/
 
 # OS
 .DS_Store
@@ -21,6 +21,4 @@ Thumbs.db
 
 # Logs
 *.log
-robot_log.txt
-
 robot_log.txt
