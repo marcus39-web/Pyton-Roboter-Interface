@@ -92,7 +92,7 @@
 
     <div class="section">
       <h3>Raum-Draufsicht mit Vermaßung</h3>
-      <canvas id="roomCanvas" class="room-canvas" width="920" height="540"></canvas>
+      <canvas id="roomCanvas" class="room-canvas" width="920" height="620"></canvas>
       <p class="hint">DIN-ähnliche Vermaßung (schematisch): Länge, Breite, Aussparung, Radius.</p>
     </div>
 
@@ -227,7 +227,14 @@
       const rw = wcm * scale;
       const rh = hcm * scale;
       const x = 180 + ((maxW - rw) / 2);
-      const y = 120 + ((maxH - rh) / 2);
+      let y = 120 + ((maxH - rh) / 2);
+
+      const extraLines = geometry.cutout_side !== 'none' ? 3 : 2;
+      const footerBottom = y + rh + (24 + (extraLines * 20));
+      const maxBottom = roomCanvas.height - 14;
+      if (footerBottom > maxBottom) {
+        y = Math.max(36, y - (footerBottom - maxBottom));
+      }
 
       const r = Math.min((geometry.corner_radius_cm || 0) * scale, Math.min(rw, rh) / 2);
       roomCtx.fillStyle = '#dde5f0';
