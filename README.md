@@ -24,6 +24,7 @@ Objektorientierte Python-Schnittstelle zur Fernsteuerung des BrainBot Roboters �
 - ✅ Automatisches Logging aller Aktionen in `robot_log.txt`
 - ✅ Simulationsdaten über `simulation_data.json` konfigurierbar
 - ✅ Lernmodus mit Datenspeicherung in `learning_data.jsonl`
+- ✅ Optionale, erweiterbare MySQL-Persistenz für Kategorisierung (`Docker + MySQL 8`)
 - ✅ Fehlerbehandlung und Statusmeldungen
 - ✅ 100% Test-Coverage mit pytest
 - ✅ Lokale Testläufe ohne Hardware
@@ -46,6 +47,7 @@ Objektorientierte Python-Schnittstelle zur Fernsteuerung des BrainBot Roboters �
 - 📦 pip (Python Package Manager)
 - 🔧 Visual Studio Code (empfohlen)
 - 🌳 Git
+- 🐳 Docker + Docker Compose (für MySQL-Betrieb)
 
 ### Python Installation
 
@@ -81,6 +83,31 @@ git clone https://github.com/marcus39-web/Pyton-Roboter-Interface.git
 cd "GHI Python-Roboter-Interface OOP"
 cd BrainBot_AI
 ```
+
+### Optional: Docker + MySQL für Kategorisierung
+
+Für größere Erweiterungen kann die Kategorisierung in MySQL persistiert werden.
+
+**1. Umgebungsdatei anlegen:**
+
+```bash
+cp .env.example .env
+```
+
+**2. Container starten:**
+
+```bash
+docker compose up -d
+```
+
+Enthalten:
+
+- `mysql` (Port `3306`)
+- `adminer` für DB-Ansicht (Port `8081`, Browser: `http://127.0.0.1:8081`)
+
+**3. Python-Seite aktivieren:**
+
+In `.env` muss `APP_USE_MYSQL=1` gesetzt sein. Dann initialisiert `main.py` beim Start das Schema und schreibt Entscheidungen zusätzlich in MySQL.
 
 ## Lokale Testläufe (OHNE Hardware)
 
@@ -181,7 +208,10 @@ Beispielvorlage: `simulation_data.example.json` (bei Bedarf nach `simulation_dat
 
 Beim Lauf schreibt der Lernmodus zusätzlich Trainingsdaten nach `learning_data.jsonl` (ein JSON-Eintrag pro gesendetem Befehl).
 
+Wenn `APP_USE_MYSQL=1` aktiv ist, werden dieselben Entscheidungen zusätzlich in MySQL gespeichert (`categories`, `samples`, `predictions`, `feedback`).
+
 📖 **Detaillierte Anleitung:** Siehe `README_TEST/README_TESTLAEUFE.md`
+📖 **MySQL-Kategorisierungstests:** Siehe `README_TEST/README_KATAGO__TESTS.md`
 
 **2. Virtual Environment erstellen:**
 

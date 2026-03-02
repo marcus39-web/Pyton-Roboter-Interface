@@ -25,3 +25,9 @@ robot_log.txt
 
 # Runtime mapping snapshots
 map_snapshots/
+
+# Local environment config
+.env
+
+# Optional local DB artifacts
+mysql_data/

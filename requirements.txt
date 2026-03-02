@@ -1,6 +1,9 @@
 # Keine externen Abhängigkeiten erforderlich.
 # Verwendet nur Python-Standardbibliothek.
 
+# Optional: Persistenz für Kategorisierung via MySQL
+mysql-connector-python>=9.0.0
+
 # Testing
 pytest>=7.4.0
 pytest-cov>=4.1.0

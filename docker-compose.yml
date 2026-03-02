@@ -1,0 +1,34 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: brainbot-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-brainbot_ai}
+      MYSQL_USER: ${MYSQL_USER:-brainbot}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-brainbot_pass}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u${MYSQL_USER:-brainbot}", "-p${MYSQL_PASSWORD:-brainbot_pass}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 25s
+
+  adminer:
+    image: adminer:4
+    container_name: brainbot-adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

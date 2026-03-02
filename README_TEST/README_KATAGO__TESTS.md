@@ -10,6 +10,30 @@ Der Fokus liegt auf reproduzierbaren Schritten, klaren Eingaben und erwarteten E
 - Python ist installiert
 - Abhängigkeiten sind installiert (`pip install -r requirements.txt`)
 - Projektordner ist geöffnet
+- Optional für DB-Tests: Docker + Docker Compose
+
+## Docker/MySQL Setup (erweiterbar)
+
+1. `.env` aus Vorlage erstellen:
+
+```bash
+cp .env.example .env
+```
+
+2. MySQL + Adminer starten:
+
+```bash
+docker compose up -d
+```
+
+3. Erreichbarkeit prüfen:
+
+- MySQL: `127.0.0.1:3306`
+- Adminer: `http://127.0.0.1:8081`
+
+4. Kategorisierungs-Persistenz aktivieren:
+
+- In `.env`: `APP_USE_MYSQL=1`
 
 ## Schnellcheck (Basis)
 
@@ -68,6 +92,28 @@ pytest tests/ -v
 - **Erwartung:**
   - Kategorien bleiben bei gleichen Eingaben konsistent.
 
+### Testfall KAT-05: MySQL Persistenz
+
+- **Ziel:** Prüfen, ob Kategorisierungsereignisse dauerhaft in MySQL landen.
+- **Schritte:**
+  1. Mock-Server starten: `python test_server.py`
+  2. Client starten: `python main.py`
+  3. In Adminer anmelden (Server `mysql`, DB `brainbot_ai`, User/Pass aus `.env`).
+  4. Tabellen `samples` und `predictions` öffnen.
+- **Erwartung:**
+  - Neue Datensätze in `samples` und `predictions` nach jedem Lauf.
+  - `decision_text` enthält z. B. `OBSTACLE`/`CLEAR`.
+
+### Testfall KAT-06: Kategorie-Referenzdaten
+
+- **Ziel:** Sicherstellen, dass Referenzkategorien gepflegt sind.
+- **Schritte:**
+  1. Tabelle `categories` öffnen.
+  2. Einträge `OBSTACLE` und `CLEAR` prüfen.
+- **Erwartung:**
+  - Beide Kategorien vorhanden.
+  - Bei neuen Entscheidungswerten werden Kategorien automatisch ergänzt.
+
 ## Ergebnisprotokoll (Vorlage)
 
 | Datum | Testfall | Ergebnis | Notizen |
@@ -76,11 +122,14 @@ pytest tests/ -v
 | YYYY-MM-DD | KAT-02 | PASS/FAIL |  |
 | YYYY-MM-DD | KAT-03 | PASS/FAIL |  |
 | YYYY-MM-DD | KAT-04 | PASS/FAIL |  |
+| YYYY-MM-DD | KAT-05 | PASS/FAIL |  |
+| YYYY-MM-DD | KAT-06 | PASS/FAIL |  |
 
 ## Abschlusskriterium
 
 Die Kategorisierung gilt als testbar dokumentiert, wenn:
 
 - alle vier Testfälle einmal vollständig ausgeführt wurden,
+- für DB-Betrieb zusätzlich KAT-05 und KAT-06 erfolgreich sind,
 - Ergebnisse protokolliert sind,
 - bei FAIL ein reproduzierbarer Schritt im Notizfeld vorhanden ist.
