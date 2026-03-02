@@ -1,10 +1,6 @@
 {
   "python.analysis.typeCheckingMode": "strict",
-  "python.linting.enabled": true,
-  "python.linting.pylintEnabled": true,
-  "python.linting.mypyEnabled": true,
   "[python]": {
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "ms-python.python"
+    "editor.formatOnSave": true
   }
 }
