@@ -22,6 +22,8 @@ Objektorientierte Python-Schnittstelle zur Fernsteuerung des BrainBot Roboters �
 - ✅ TCP/IP-Verbindung zum Roboter (mit Mock-Server für Tests)
 - ✅ Heartbeat-System für sichere Kommunikation
 - ✅ Automatisches Logging aller Aktionen in `robot_log.txt`
+- ✅ Simulationsdaten über `simulation_data.json` konfigurierbar
+- ✅ Lernmodus mit Datenspeicherung in `learning_data.jsonl`
 - ✅ Fehlerbehandlung und Statusmeldungen
 - ✅ 100% Test-Coverage mit pytest
 - ✅ Lokale Testläufe ohne Hardware
@@ -97,6 +99,24 @@ python test_server.py
 ```bash
 python main.py
 ```
+
+### 🧠 Simulation & Lernmodus (ohne Roboter)
+
+`main.py` nutzt Testdaten aus `simulation_data.json`:
+
+```json
+{
+    "safe_distance_cm": 30,
+    "distances_cm": [85, 60, 45, 28, 22, 50]
+}
+```
+
+Beispielvorlage: `simulation_data.example.json` (bei Bedarf nach `simulation_data.json` kopieren und Werte anpassen).
+
+- `safe_distance_cm`: Sicherheitsabstand in cm
+- `distances_cm`: Simulierte Sensor-Messwerte
+
+Beim Lauf schreibt der Lernmodus zusätzlich Trainingsdaten nach `learning_data.jsonl` (ein JSON-Eintrag pro gesendetem Befehl).
 
 📖 **Detaillierte Anleitung:** Siehe `README_TEST/README_TESTLAEUFE.md`
 
@@ -241,14 +261,18 @@ Die `robot_log.txt` wird automatisch erstellt und alle Aktionen protokolliert:
 [2026-03-02 14:30:26] [DISCONNECT] Verbindung getrennt
 ```
 
+Zusätzlich erzeugt der Lernmodus die Datei `learning_data.jsonl` für spätere KI-Trainingsläufe.
+
 **Log-Datei anschauen:**
 
 ```bash
 # Windows
 type robot_log.txt
+type learning_data.jsonl
 
 # Linux/macOS
 cat robot_log.txt
+cat learning_data.jsonl
 
 # Live-Anzeige (Windows)
 Get-Content robot_log.txt -Wait
