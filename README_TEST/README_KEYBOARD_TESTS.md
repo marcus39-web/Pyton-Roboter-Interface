@@ -79,3 +79,9 @@ Beispiel:
 ## Abschluss
 
 Wenn alle Eingaben wie erwartet ankommen, ist die Keyboard-Steuerung freigegeben.
+
+## Aktueller Stand (02.03.2026)
+
+- Keyboard-Steuerung lokal am PC ist vorbereitet und funktionsfähig.
+- Für den iPhone-Realtest im gleichen Netzwerk wurde der Testtag unterbrochen (Schulrechner nur LAN).
+- Wiedereinstieg und nächste Schritte sind in `README_WEB_STEUERUNG_TESTS.md` unter „Aktueller Stand“ dokumentiert.

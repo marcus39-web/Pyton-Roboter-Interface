@@ -123,3 +123,17 @@ Zusatzprüfung:
 ## Abschluss
 
 Wenn alle fünf Tests erfolgreich sind, ist die Web-Steuerung für den späteren Robotereinsatz vorbereitet.
+
+## Aktueller Stand (02.03.2026)
+
+- Umsetzung ist funktional fertig (Web-Steuerung, Hold-Logik, Not-Aus).
+- Test im Schulnetz wurde abgebrochen, da der Schulrechner nur LAN hatte und kein gemeinsames WLAN mit dem iPhone möglich war.
+- Beide lokalen Serverstarts auf dem PC wurden erfolgreich geprüft.
+
+### Wiedereinstieg zuhause (geplant ca. 17:00)
+
+1. PC und iPhone ins gleiche WLAN bringen.
+2. `test_server.py` starten.
+3. `web_control_server.py --host 0.0.0.0 --web-port 8080 --robot-ip 127.0.0.1 --robot-port 5000` starten.
+4. iPhone: `http://<PC-IP>:8080` öffnen.
+5. Test 1 bis 6 aus dieser Datei vollständig durchgehen.
