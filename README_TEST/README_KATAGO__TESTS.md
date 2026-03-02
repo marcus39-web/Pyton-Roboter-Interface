@@ -32,6 +32,12 @@ docker compose up -d
 - Adminer: `http://127.0.0.1:8081`
 - Login: User `root`, Passwort leer
 
+**⚠️ SEHR WICHTIG:**
+
+- `root` ohne Passwort ausschließlich lokal auf einem isolierten Entwicklungsrechner verwenden.
+- Keine Nutzung in produktiven oder geteilten Netzwerken.
+- Für spätere reale Nutzung auf Benutzer mit Passwort und eingeschränkte Rechte umstellen.
+
 4. Kategorisierungs-Persistenz aktivieren:
 
 - In `.env`: `APP_USE_MYSQL=1`

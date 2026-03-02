@@ -110,6 +110,12 @@ Standard-Zugang für diese Konfiguration:
 - User: `root`
 - Passwort: *(leer)*
 
+**⚠️ SEHR WICHTIG:**
+
+- Diese Konfiguration ist **nur für lokale Entwicklung auf dem eigenen Rechner** gedacht.
+- **Nie** in produktiven oder fremden/geteilten Netzwerken mit `root` und leerem Passwort betreiben.
+- Für reale Nutzung: eigenen DB-User mit Passwort und minimalen Rechten verwenden.
+
 **3. Python-Seite aktivieren:**
 
 In `.env` muss `APP_USE_MYSQL=1` gesetzt sein. Dann initialisiert `main.py` beim Start das Schema und schreibt Entscheidungen zusätzlich in MySQL.
