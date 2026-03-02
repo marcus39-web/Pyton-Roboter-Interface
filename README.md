@@ -131,6 +131,7 @@ python web_control_server.py --host 0.0.0.0 --web-port 8080 --robot-ip 127.0.0.1
 📖 **Detaillierte Web-Tests:** Siehe `README_TEST/README_WEB_STEUERUNG_TESTS.md`
 📖 **Keyboard-Only Tests:** Siehe `README_TEST/README_KEYBOARD_TESTS.md`
 📖 **Kartierungs-MVP Tests:** Siehe `README_TEST/README_MAP_MVP_TESTS.md`
+📖 **Kategorisierungstests:** Siehe `README_TEST/README_KATAGO__TESTS.md`
 
 **Aktueller Stand (02.03.2026):**
 
