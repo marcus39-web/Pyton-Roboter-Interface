@@ -6,21 +6,25 @@ Objektorientierte Python-Schnittstelle zur Fernsteuerung des BrainBot Roboters �
 
 **Derzeit ist noch kein Roboter angeschlossen.** Das Projekt befindet sich in der Entwicklungsphase und verwendet Testdaten.
 
-**✅ Projekt vollständig abgeschlossen:**
+**✅ Projekt vollständig abgeschlossen (v1.0.1):**
 
 - ✅ OOP-Architektur mit `BrainBotRemote`-Klasse
+- ✅ TCP/IP-Kommunikation mit Mock-Server
 - ✅ Logging-System in `robot_log.txt`
 - ✅ Unit-Tests (8/8 bestanden, 100%)
 - ✅ Git-Integration mit Hooks
+- ✅ Testlauf-Dokumentation (`README_TEST/README_TESTLAEUFE.md`)
 - ✅ Vollständige Dokumentation
 
 ## Features
 
 - ✅ Objektorientierte Architektur mit `BrainBotRemote`-Klasse
-- ✅ TCP/IP-Verbindung zum Roboter
+- ✅ TCP/IP-Verbindung zum Roboter (mit Mock-Server für Tests)
+- ✅ Heartbeat-System für sichere Kommunikation
 - ✅ Automatisches Logging aller Aktionen in `robot_log.txt`
 - ✅ Fehlerbehandlung und Statusmeldungen
 - ✅ 100% Test-Coverage mit pytest
+- ✅ Lokale Testläufe ohne Hardware
 - ✅ Bereit für Erweiterungen
 
 ## Installation & Setup
@@ -75,6 +79,26 @@ git clone https://github.com/marcus39-web/Pyton-Roboter-Interface.git
 cd "GHI Python-Roboter-Interface OOP"
 cd BrainBot_AI
 ```
+
+## Lokale Testläufe (OHNE Hardware)
+
+### ✅ Mock-Server für Entwicklung
+
+Testen Sie die komplette Kommunikation **lokal** ohne echten Roboter:
+
+**Terminal 1 - Mock-Server starten:**
+
+```bash
+python test_server.py
+```
+
+**Terminal 2 - Client starten:**
+
+```bash
+python main.py
+```
+
+📖 **Detaillierte Anleitung:** Siehe `README_TEST/README_TESTLAEUFE.md`
 
 **2. Virtual Environment erstellen:**
 
@@ -540,8 +564,8 @@ MIT License - Frei verwendbar für Bildungszwecke
 
 - 🐙 GitHub: [marcus39-web](https://github.com/marcus39-web)
 - 🎓 Schulprojekt: BrainBot AI OOP Interface
-- 📅 Datum: März 2026
-- ⭐ Version: 1.0.0
+- 📅 Datum: 02 März 2026
+- ⭐ Version: 1.0.0 zu ⭐ Version: 1.0.1
 
 ---
 
