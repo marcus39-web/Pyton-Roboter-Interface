@@ -131,6 +131,13 @@ python web_control_server.py --host 0.0.0.0 --web-port 8080 --robot-ip 127.0.0.1
 📖 **Detaillierte Web-Tests:** Siehe `README_TEST/README_WEB_STEUERUNG_TESTS.md`
 📖 **Keyboard-Only Tests:** Siehe `README_TEST/README_KEYBOARD_TESTS.md`
 
+**Aktueller Stand (02.03.2026):**
+
+- ✅ Web-Steuerung, Hold-Logik und globaler Not-Aus sind implementiert
+- ✅ Lokale PC-Tests sind erfolgreich
+- ⏸️ iPhone-Realtest wurde pausiert (Schulumgebung: PC nur LAN, kein gemeinsames WLAN)
+- ▶️ Wiedereinstieg zuhause: PC+iPhone ins gleiche WLAN, dann Web-Tests laut `README_TEST/README_WEB_STEUERUNG_TESTS.md`
+
 ### 🧠 Simulation & Lernmodus (ohne Roboter)
 
 `main.py` nutzt Testdaten aus `simulation_data.json`:
