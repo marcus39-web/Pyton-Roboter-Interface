@@ -31,3 +31,6 @@ map_snapshots/
 
 # Optional local DB artifacts
 mysql_data/
+
+# Runtime categorization exports
+categorization_exports/

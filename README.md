@@ -171,6 +171,30 @@ python web_control_server.py --host 0.0.0.0 --web-port 8080 --robot-ip 127.0.0.1
 📖 **Kartierungs-MVP Tests:** Siehe `README_TEST/README_MAP_MVP_TESTS.md`
 📖 **Kategorisierungstests:** Siehe `README_TEST/README_KATAGO__TESTS.md`
 
+### 📊 Kategorisierungsausgabe (Tag/Woche/Monat/Jahr + JPG)
+
+Mit `categorization_report_server.py` gibt es eine einfache visuelle Ausgabe der Kategorisierung:
+
+- Blockansicht in Tag/Woche/Monat/Jahr
+- Tabellenansicht mit `Erstellt am`, `Zimmername`, Distanz, Kategorie, Kommando
+- JPG-Export mit Metadaten (`Erstellt am`, Zimmername, Vermaßung)
+
+**Start:**
+
+```bash
+python categorization_report_server.py --host 0.0.0.0 --web-port 8092
+```
+
+**Öffnen:**
+
+- PC: `http://127.0.0.1:8092`
+- iPhone (gleiches WLAN): `http://<PC-IP>:8092`
+
+**Export-Dateien:**
+
+- JPG-Ausgaben liegen lokal unter `categorization_exports/`
+- Export-Log für spätere Erweiterungen: `categorization_exports/exports_log.jsonl`
+
 **Aktueller Stand (02.03.2026):**
 
 - ✅ Web-Steuerung, Hold-Logik und globaler Not-Aus sind implementiert

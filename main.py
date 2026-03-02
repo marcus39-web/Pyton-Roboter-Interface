@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 from datetime import datetime
 
@@ -49,6 +50,7 @@ def log_training_sample(
     safe_distance_cm: int,
     decision: str,
     command: str,
+    room_name: str = "",
     categorization_db: "CategorizationDatabase | None" = None,
 ) -> None:
     """Speichert einen Trainingsdatensatz (JSONL) für spätere Modell-Trainingsläufe."""
@@ -59,6 +61,7 @@ def log_training_sample(
         "safe_distance_cm": safe_distance_cm,
         "decision": decision,
         "command": command,
+        "room_name": room_name,
     }
 
     try:
@@ -73,10 +76,13 @@ def log_training_sample(
             safe_distance_cm=safe_distance_cm,
             decision=decision,
             command=command,
+            room_name=room_name,
         )
 
 
 def main():
+    room_name = os.getenv("ROOM_NAME", "Unbekanntes_Zimmer").strip() or "Unbekanntes_Zimmer"
+
     db = None
     if CategorizationDatabase is not None:
         db = CategorizationDatabase.from_env()
@@ -105,13 +111,13 @@ def main():
             my_robot.send_command("STOP")
             my_robot.send_command("TURN_LEFT_90")
             # Beide gesendeten Kommandos als Trainingsdaten protokollieren.
-            log_training_sample(distance_cm, safe_distance_cm, decision, "STOP", db)
-            log_training_sample(distance_cm, safe_distance_cm, decision, "TURN_LEFT_90", db)
+            log_training_sample(distance_cm, safe_distance_cm, decision, "STOP", room_name, db)
+            log_training_sample(distance_cm, safe_distance_cm, decision, "TURN_LEFT_90", room_name, db)
         else:
             print(f"🤖 KI: Strecke frei ({distance_cm}cm) -> MOVE_FORWARD")
             my_robot.send_command("MOVE_FORWARD")
             # Auch Vorwärtsfahrt wird als positiver Lernfall gespeichert.
-            log_training_sample(distance_cm, safe_distance_cm, decision, "MOVE_FORWARD", db)
+            log_training_sample(distance_cm, safe_distance_cm, decision, "MOVE_FORWARD", room_name, db)
 
     print("🧠 Lernmodus: Trainingsdaten wurden in learning_data.jsonl gespeichert")
 

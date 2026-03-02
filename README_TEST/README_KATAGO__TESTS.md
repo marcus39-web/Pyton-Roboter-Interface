@@ -121,6 +121,29 @@ pytest tests/ -v
   - Beide Kategorien vorhanden.
   - Bei neuen Entscheidungswerten werden Kategorien automatisch ergänzt.
 
+### Testfall KAT-07: Blockansicht (Tag/Woche/Monat/Jahr)
+
+- **Ziel:** Sicherstellen, dass Kategorisierungen in Zeitblöcken angezeigt werden.
+- **Schritte:**
+  1. Report-Server starten: `python categorization_report_server.py --host 0.0.0.0 --web-port 8092`
+  2. Browser öffnen: `http://127.0.0.1:8092`
+  3. Nacheinander `Tag`, `Woche`, `Monat`, `Jahr` auswählen.
+- **Erwartung:**
+  - Für jeden Zeitraum wird eine Blocktabelle mit Summen angezeigt.
+  - `Erstellt am` ist sichtbar.
+
+### Testfall KAT-08: JPG-Export mit Vermaßung und Zimmername
+
+- **Ziel:** Prüfen, ob eine Datei mit Metadaten erzeugt wird.
+- **Schritte:**
+  1. In der Report-UI `Zimmername`, `Breite (cm)`, `Höhe (cm)` ausfüllen.
+  2. `JPG EXPORT` auslösen.
+  3. Ordner `categorization_exports/` prüfen.
+- **Erwartung:**
+  - Eine `.jpg` Datei wurde erzeugt.
+  - Dateiname enthält Zimmername und Zeitraum.
+  - Datei enthält Text: `Erstellt am`, Zimmername, Vermaßung.
+
 ## Ergebnisprotokoll (Vorlage)
 
 | Datum | Testfall | Ergebnis | Notizen |
@@ -131,6 +154,8 @@ pytest tests/ -v
 | YYYY-MM-DD | KAT-04 | PASS/FAIL |  |
 | YYYY-MM-DD | KAT-05 | PASS/FAIL |  |
 | YYYY-MM-DD | KAT-06 | PASS/FAIL |  |
+| YYYY-MM-DD | KAT-07 | PASS/FAIL |  |
+| YYYY-MM-DD | KAT-08 | PASS/FAIL |  |
 
 ## Abschlusskriterium
 
@@ -138,5 +163,6 @@ Die Kategorisierung gilt als testbar dokumentiert, wenn:
 
 - alle vier Testfälle einmal vollständig ausgeführt wurden,
 - für DB-Betrieb zusätzlich KAT-05 und KAT-06 erfolgreich sind,
+- für Ausgabe/Export zusätzlich KAT-07 und KAT-08 erfolgreich sind,
 - Ergebnisse protokolliert sind,
 - bei FAIL ein reproduzierbarer Schritt im Notizfeld vorhanden ist.

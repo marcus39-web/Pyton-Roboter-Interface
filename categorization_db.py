@@ -143,6 +143,7 @@ class CategorizationDatabase:
         decision: str,
         command: str,
         source: str = "main.py",
+        room_name: str = "",
     ) -> tuple[bool, str]:
         if not self.enabled:
             return False, "MySQL deaktiviert"
@@ -156,9 +157,9 @@ class CategorizationDatabase:
             cursor.execute(
                 """
                 INSERT INTO samples (source, distance_cm, safe_distance_cm, raw_payload)
-                VALUES (%s, %s, %s, JSON_OBJECT('decision', %s, 'command', %s))
+                VALUES (%s, %s, %s, JSON_OBJECT('decision', %s, 'command', %s, 'room_name', %s))
                 """,
-                (source, int(distance_cm), int(safe_distance_cm), decision, command),
+                (source, int(distance_cm), int(safe_distance_cm), decision, command, room_name),
             )
             sample_id = int(cursor.lastrowid)
 
@@ -176,3 +177,34 @@ class CategorizationDatabase:
             return True, "Entscheidung in MySQL gespeichert"
         except (MySQLError, RuntimeError, OSError, ValueError) as error:
             return False, f"MySQL-Log fehlgeschlagen: {error}"
+
+    def fetch_recent_predictions(self, limit: int = 500) -> tuple[bool, list[dict], str]:
+        if not self.enabled:
+            return False, [], "MySQL deaktiviert"
+
+        try:
+            connection = self._connect()
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(
+                """
+                SELECT
+                    p.created_at,
+                    p.decision_text AS decision,
+                    p.command_text AS command,
+                    p.confidence,
+                    s.distance_cm,
+                    s.safe_distance_cm,
+                    COALESCE(JSON_UNQUOTE(JSON_EXTRACT(s.raw_payload, '$.room_name')), '') AS room_name
+                FROM predictions p
+                INNER JOIN samples s ON p.sample_id = s.id
+                ORDER BY p.created_at DESC
+                LIMIT %s
+                """,
+                (int(limit),),
+            )
+            rows = cursor.fetchall()
+            cursor.close()
+            connection.close()
+            return True, rows, "ok"
+        except (MySQLError, RuntimeError, OSError, ValueError) as error:
+            return False, [], f"MySQL-Abfrage fehlgeschlagen: {error}"
