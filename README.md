@@ -16,6 +16,18 @@ Objektorientierte Python-Schnittstelle zur Fernsteuerung des BrainBot Roboters �
 - ✅ Testlauf-Dokumentation (`README_TEST/README_TESTLAEUFE.md`)
 - ✅ Vollständige Dokumentation
 
+## Release-Log
+
+### v1.0.2 (02.03.2026)
+
+- Neue Kategorisierungs-Webansicht mit Zeitblöcken (Tag/Woche/Monat/Jahr)
+- JPG-Export inkl. Metadaten (`Erstellt am`, Zimmername, Vermaßung)
+- Export-Historie (letzte 10) + Direkt-Download in der UI
+- Raum-Draufsicht mit DIN-ähnlicher Vermaßung (schematisch)
+- Erweiterte Raumgeometrie: Eckradius + Aussparung (Seite/Breite/Tiefe)
+- Docker/MySQL-Backbone für Kategorisierungs-Persistenz integriert
+- Testsuite auf 15 Tests erweitert und grün
+
 ## Features
 
 - ✅ Objektorientierte Architektur mit `BrainBotRemote`-Klasse
