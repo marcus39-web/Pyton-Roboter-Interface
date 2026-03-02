@@ -93,12 +93,23 @@
         <tbody id="recentBody"></tbody>
       </table>
     </div>
+
+    <div class="section">
+      <h3>Export-Historie (letzte 10 JPG)</h3>
+      <table>
+        <thead>
+          <tr><th>Erstellt am</th><th>Zimmer</th><th>Block</th><th>Datei</th><th>Download</th></tr>
+        </thead>
+        <tbody id="exportsBody"></tbody>
+      </table>
+    </div>
   </div>
 
   <script>
     const statusEl = document.getElementById('status');
     const blocksBody = document.getElementById('blocksBody');
     const recentBody = document.getElementById('recentBody');
+    const exportsBody = document.getElementById('exportsBody');
     const downloadBtn = document.getElementById('downloadBtn');
     const lastExportInfoEl = document.getElementById('lastExportInfo');
     let lastDownloadUrl = '';
@@ -157,8 +168,32 @@
           return;
         }
         renderSummary(data);
+        await refreshExports();
       } catch {
         setStatus('Status: API nicht erreichbar');
+      }
+    }
+
+    async function refreshExports() {
+      try {
+        const data = await call('/api/exports?limit=10');
+        if (!data.ok) {
+          return;
+        }
+
+        exportsBody.innerHTML = '';
+        for (const item of (data.exports || [])) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${item.created_at || ''}</td>
+            <td>${item.room_name || '-'}</td>
+            <td>${item.period || '-'}</td>
+            <td>${item.filename || ''}</td>
+            <td><a href="${item.download_url}" style="color:#7ab4ff;">Download</a></td>
+          `;
+          exportsBody.appendChild(tr);
+        }
+      } catch {
       }
     }
 
@@ -183,6 +218,7 @@
           lastDownloadUrl = data.download_url || '';
           downloadBtn.disabled = !lastDownloadUrl;
           lastExportInfoEl.textContent = `Letzter Export: ${data.filename || '-'} | Erstellt am: ${data.created_at || '-'}`;
+          await refreshExports();
         } else {
           setStatus(`Status: Export fehlgeschlagen: ${data.message}`);
         }

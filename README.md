@@ -179,6 +179,7 @@ Mit `categorization_report_server.py` gibt es eine einfache visuelle Ausgabe der
 - Tabellenansicht mit `Erstellt am`, `Zimmername`, Distanz, Kategorie, Kommando
 - JPG-Export mit Metadaten (`Erstellt am`, Zimmername, Vermaßung)
 - Direkter Download der zuletzt erzeugten JPG-Datei in der UI
+- Export-Historie: letzte 10 JPG-Dateien mit Klick-Download
 
 **Start:**
 

@@ -163,6 +163,42 @@ class CategorizationReportService:
             "recent": entries[:50],
         }
 
+    def list_recent_exports(self, limit: int = 10) -> list[dict]:
+        log_file = self.export_dir / "exports_log.jsonl"
+        if not log_file.exists():
+            return []
+
+        items: list[dict] = []
+        for line in log_file.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                payload = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            filename = str(payload.get("filename", "")).strip()
+            safe_name = Path(filename).name
+            if not safe_name.lower().endswith(".jpg"):
+                continue
+
+            target = self.export_dir / safe_name
+            if not target.exists():
+                continue
+
+            items.append(
+                {
+                    "filename": safe_name,
+                    "created_at": payload.get("created_at", ""),
+                    "room_name": payload.get("room_name", ""),
+                    "period": payload.get("period", ""),
+                    "download_url": f"/exports/{safe_name}",
+                }
+            )
+
+        return list(reversed(items))[:max(1, int(limit))]
+
     def export_jpg(self, room_name: str, room_width_cm: int, room_height_cm: int, period: str) -> tuple[bool, dict]:
         if Image is None:
             return False, {"ok": False, "message": "Pillow nicht installiert (pip install -r requirements.txt)"}
@@ -317,6 +353,16 @@ class CategorizationHandler(BaseHTTPRequestHandler):
             query = parse_qs(parsed.query)
             limit = int(query.get("limit", ["1000"])[0])
             self._send_json(self.service.build_summary(limit=limit))
+            return
+
+        if parsed.path == "/api/exports":
+            if self.service is None:
+                self._send_json({"ok": False, "message": "service nicht initialisiert"}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                return
+
+            query = parse_qs(parsed.query)
+            limit = int(query.get("limit", ["10"])[0])
+            self._send_json({"ok": True, "exports": self.service.list_recent_exports(limit=limit)})
             return
 
         self._send_json({"ok": False, "message": "not found"}, status=HTTPStatus.NOT_FOUND)

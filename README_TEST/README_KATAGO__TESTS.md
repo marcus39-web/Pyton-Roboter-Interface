@@ -144,6 +144,7 @@ pytest tests/ -v
   - Dateiname enthält Zimmername und Zeitraum.
   - Datei enthält Text: `Erstellt am`, Zimmername, Vermaßung.
   - `DOWNLOAD LETZTER JPG` lädt die zuletzt erstellte Datei direkt herunter.
+  - In der Export-Historie erscheint der neue Eintrag mit Download-Link.
 
 ## Ergebnisprotokoll (Vorlage)
 
