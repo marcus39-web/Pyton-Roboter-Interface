@@ -23,892 +23,537 @@ Objektorientierte Python-Schnittstelle zur Fernsteuerung des BrainBot Roboters �
 - ✅ 100% Test-Coverage mit pytest
 - ✅ Bereit für Erweiterungen
 
-## Installation
+## Installation & Setup
 
-1. **Repository klonen:**
+### Voraussetzungen
 
-   ```bash
-   git clone https://github.com/marcus39-web/Pyton-Roboter-Interface.git
-   cd "BrainBot_AI"
-   ```
+**Hardware:**
 
-2. **Virtuelle Umgebung erstellen:**
+- 🖥️ Windows/Linux/macOS Computer
+- 🤖 BrainBot Roboter (FEZ Bit / SITCore)
+- 🌐 WLAN-fähiger Roboter
+- 🔌 USB-Kabel (für Entwicklung)
 
-   ```bash
-   python -m venv .venv
-   .venv\Scripts\activate  # Windows
-   source .venv/bin/activate  # Linux/Mac
-   ```
+**Software:**
 
-3. **Abhängigkeiten installieren:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+- 🐍 Python 3.8+
+- 📦 pip (Python Package Manager)
+- 🔧 Visual Studio Code (empfohlen)
+- 🌳 Git
 
-## Nutzung
+### Python Installation
 
-### Grundlegende Verwendung
+**Windows:**
 
-```python
-from basis_class import BrainBotRemote
+```powershell
+# Python 3.11+ herunterladen von python.org
+# Bei Installation: "Add Python to PATH" aktivieren!
 
-# Roboter-Instanz erstellen
-robot = BrainBotRemote(robot_ip="192.168.1.100", port=5000)
-
-# Verbindung herstellen
-if robot.connect():
-    # Befehle senden
-    robot.send_command("FORWARD")
-    robot.send_command("TURN_LEFT")
-    robot.send_command("STOP")
-
-    # Verbindung trennen
-    robot.disconnect()
+# Prüfen
+python --version
+pip --version
 ```
 
-### Testprogramm ausführen
+**Linux/macOS:**
 
 ```bash
-python main.py
+# Python installieren
+brew install python3  # macOS
+sudo apt-get install python3 python3-pip  # Linux
+
+# Prüfen
+python3 --version
+pip3 --version
 ```
 
-**Hinweis:** Solange kein Roboter angeschlossen ist, wird ein Verbindungsfehler ausgegeben und im Log protokolliert.
+### Projekt-Setup
 
-## Logging
-
-Alle Aktionen werden automatisch in `robot_log.txt` protokolliert:
-
-```
-[2026-03-02 00:23:37] [ERROR] Verbindungsfehler: [WinError 10060] ...
-[2026-03-02 12:45:10] [CONNECT] Verbunden mit 192.168.1.100:5000
-[2026-03-02 12:45:15] [COMMAND] Befehl gesendet: FORWARD
-[2026-03-02 12:45:20] [DISCONNECT] Verbindung getrennt
-```
-
-**Log-Level:**
-
-- `CONNECT` - Erfolgreiche Verbindung
-- `COMMAND` - Gesendeter Befehl
-- `ERROR` - Fehler bei Verbindung/Befehl
-- `DISCONNECT` - Verbindung getrennt
-
-**Hinweis:** `robot_log.txt` wird von Git ignoriert (siehe `.gitignore`)
-
-## Projektstruktur
-
-```
-BrainBot_AI/
-├── basis_class.py          # Haupt-Klasse für Roboter-Steuerung
-├── main.py                 # Testprogramm
-├── robot_log.txt           # Automatisches Logging (wird ignoriert von Git)
-├── requirements.txt        # Python-Abhängigkeiten
-├── pytest.ini              # Test-Konfiguration
-├── README.md               # Diese Datei
-├── .gitignore             # Git-Ausschlüsse
-├── tests/                 # Unit-Tests
-│   ├── __init__.py
-│   └── test_basis_class.py
-└── hooks/                 # Git Hooks für automatische Workflows
-    ├── applypatch-msg.sample
-    ├── commit-msg.sample
-    ├── fsmonitor-watchman.sample
-    ├── post-update.sample
-    ├── pre-applypatch.sample
-    ├── pre-commit.sample
-    ├── pre-merge-commit.sample
-    ├── pre-push.sample
-    ├── pre-rebase.sample
-    ├── pre-receive.sample
-    ├── prepare-commit-msg.sample
-    ├── push-to-checkout.sample
-    ├── sendemail-validate.sample
-    └── update.sample
-```
-
-## Testing
-
-### Unit-Tests ausführen
+**1. Repository klonen:**
 
 ```bash
-# Alle Tests ausführen
-python -m pytest tests/ -v
-
-# Mit Coverage-Report
-python -m pytest tests/ --cov=basis_class --cov-report=term-missing
-
-# Einzelnen Test ausführen
-python -m pytest tests/test_basis_class.py::TestBrainBotRemote::test_connect_failure -v
+git clone https://github.com/marcus39-web/Pyton-Roboter-Interface.git
+cd "GHI Python-Roboter-Interface OOP"
+cd BrainBot_AI
 ```
 
-**Aktueller Test-Status:**
+**2. Virtual Environment erstellen:**
 
-```
-✅ 8 passed in 2.10s (100%)
+```powershell
+# Windows
+python -m venv venv
+venv\Scripts\activate
 
-tests/test_basis_class.py::TestBrainBotRemote::test_init PASSED                    [ 12%]
-tests/test_basis_class.py::TestBrainBotRemote::test_log_file_path PASSED           [ 25%]
-tests/test_basis_class.py::TestBrainBotRemote::test_connect_failure PASSED         [ 37%]
-tests/test_basis_class.py::TestBrainBotRemote::test_send_command_without_connection PASSED [ 50%]
-tests/test_basis_class.py::TestBrainBotRemote::test_disconnect_without_connection PASSED [ 62%]
-tests/test_basis_class.py::TestBrainBotRemote::test_logging PASSED                 [ 75%]
-tests/test_basis_class.py::TestBrainBotRemote::test_multiple_log_entries PASSED    [ 87%]
-tests/test_basis_class.py::test_robot_ip_validation PASSED                         [100%]
+# Linux/macOS
+python3 -m venv venv
+source venv/bin/activate
 ```
 
-## Entwicklung
+**3. Dependencies installieren:**
 
-### Neue Befehle hinzufügen
+```bash
+pip install -r requirements.txt
+```
 
-Erweitern Sie die `BrainBotRemote`-Klasse in `basis_class.py`:
+**4. Tests ausführen:**
+
+```bash
+pytest tests/ -v
+```
+
+**5. (Optional) Visual Studio Code öffnen:**
+
+```bash
+code .
+```
+
+## Erste Schritte
+
+### Verbindung zum Roboter herstellen
+
+**Schritt 1: Roboter-IP finden**
 
 ```python
-def move_forward(self, speed=100):
-    """Roboter vorwärts bewegen"""
-    return self.send_command(f"FORWARD:{speed}")
+# Option A: Im Router suchen nach "BrainBot"
+# Option B: Auf dem Roboter-Display prüfen
+# Option C: Mit Netzwerk-Scanner (Advanced)
 
-def turn_left(self, degrees=90):
-    """Roboter nach links drehen"""
-    return self.send_command(f"TURN_LEFT:{degrees}")
-
-def read_sensor(self, sensor_id):
-    """Sensor auslesen"""
-    return self.send_command(f"READ_SENSOR:{sensor_id}")
+roboter_ip = "192.168.1.100"  # ERSETZEN mit echte IP!
 ```
 
-### Code-Qualität
+**Schritt 2: Einfaches Test-Skript**
 
-Das Projekt verwendet folgende Best Practices:
-
-- ✅ Objektorientierte Programmierung (OOP)
-- ✅ Type Hints und Docstrings
-- ✅ Fehlerbehandlung mit try-except
-- ✅ Automatisches Logging
-- ✅ Unit-Tests mit pytest
-- ✅ Git Hooks für Workflow-Automatisierung
-
-## Anforderungen
-
-- Python 3.8+
-- Socket-Bibliothek (Standard)
-- pytest >= 7.4.0 (für Tests)
-- pytest-cov >= 4.1.0 (für Coverage)
-
-## Roadmap
-
-### Phase 1: Grundlagen (✅ Abgeschlossen)
-
-- [x] OOP-Struktur implementieren
-- [x] Logging-System einrichten
-- [x] Unit-Tests schreiben
-- [x] Dokumentation erstellen
-
-### Phase 2: Hardware-Integration (⏳ Geplant)
-
-- [ ] Roboter-Hardware anschließen
-- [ ] Verbindungstest durchführen
-- [ ] Basis-Befehle implementieren
-- [ ] Sensor-Integration
-
-### Phase 3: Erweiterte Features (📋 Backlog)
-
-- [ ] GUI für einfache Steuerung
-- [ ] Video-Streaming-Support
-- [ ] Autonomous Mode mit KI
-- [ ] Multi-Roboter-Unterstützung
-- [ ] REST-API für Web-Interface
-
-### Phase 4: Zukunftsvisionen (💡 Ideen)
-
-- [ ] 📱 Smartphone-App zur Steuerung (iOS/Android)
-- [ ] 🎥 Kamera-Integration mit Live-Video-Streaming
-- [ ] 🗺️ Automatische Raum-Kartierung (SLAM)
-- [ ] 🧠 KI-Steuerung mit Machine Learning
-- [ ] 🎮 Gaming-Controller Support (Xbox/PlayStation)
-- [ ] 🌐 Web-Interface im Browser
-- [ ] 👥 Multi-Roboter Koordination & Schwarm-Intelligenz
-- [ ] 🔊 Sprachsteuerung (Alexa/Google Assistant)
-- [ ] 📊 Daten-Visualisierung & Analytics Dashboard
-- [ ] 🎯 Objekt-Erkennung mit Computer Vision
-- [ ] 🏠 Smart-Home Integration
-- [ ] ☁️ Cloud-Anbindung für Remote-Steuerung
-
-## Ideen für später
-
-### 1. Mobile App Development 📱
-
-**iOS/Android App:**
-
-```
-Features:
-- Touch-Steuerung mit virtuellem Joystick
-- Live-Video-Feed vom Roboter
-- Sensor-Daten in Echtzeit
-- Geschwindigkeitskontrolle
-- Programmierbare Routen
-```
-
-**Technologien:**
-
-- React Native / Flutter
-- WebSocket für Echtzeitkommunikation
-- REST-API Backend
-
-### 2. Computer Vision & KI 🧠
-
-**Objekterkennung:**
-
-```python
-def detect_objects(self, image):
-    # YOLOv8 oder TensorFlow für Objekterkennung
-    objects = self.model.detect(image)
-    return objects
-
-def follow_person(self):
-    # Automatisch einer Person folgen
-    person = self.detect_objects("person")
-    self.navigate_to(person.position)
-```
-
-**Gesichtserkennung:**
-
-```python
-def recognize_face(self, image):
-    # OpenCV für Gesichtserkennung
-    face = self.face_detector.detect(image)
-    identity = self.face_recognizer.identify(face)
-    return identity
-```
-
-### 3. Autonome Navigation 🗺️
-
-**SLAM (Simultaneous Localization and Mapping):**
-
-```python
-def map_environment(self):
-    # Raum kartieren während der Fahrt
-    self.lidar_data = self.read_lidar()
-    self.map.update(self.lidar_data)
-    self.position = self.calculate_position()
-
-def navigate_to_point(self, x, y):
-    # A* Pfadplanung
-    path = self.calculate_path(self.position, (x, y))
-    self.follow_path(path)
-```
-
-**Hinderniserkennung:**
-
-```python
-def avoid_obstacles(self):
-    distance = self.read_ultrasonic()
-    if distance < 20:  # 20cm
-        direction = self.find_free_direction()
-        self.turn(direction)
-    else:
-        self.move_forward()
-```
-
-### 4. Web-Interface & Dashboard 🌐
-
-**Dashboard-Features:**
-
-- Echtzeit-Steuerung im Browser
-- Live-Video-Stream
-- Sensor-Datenvisualisierung
-- Log-Anzeige in Echtzeit
-- Batteriestatus & System-Info
-- Programmierbare Aufgaben
-
-**Technologien:**
-
-- Backend: Flask/FastAPI
-- Frontend: React/Vue.js
-- WebSocket für Echtzeitdaten
-- Chart.js für Datenvisualisierung
-
-**Beispiel-API:**
-
-```python
-from flask import Flask, jsonify
-from flask_socketio import SocketIO
-
-app = Flask(__name__)
-socketio = SocketIO(app)
-
-@app.route('/api/robot/status')
-def get_status():
-    return jsonify({
-        'connected': robot.socket is not None,
-        'battery': robot.read_battery(),
-        'position': robot.get_position()
-    })
-
-@socketio.on('command')
-def handle_command(data):
-    robot.send_command(data['command'])
-```
-
-### 5. Gaming-Controller Support 🎮
-
-**Controller-Integration:**
-
-```python
-import pygame
-
-def setup_controller(self):
-    pygame.init()
-    self.joystick = pygame.joystick.Joystick(0)
-    self.joystick.init()
-
-def control_with_gamepad(self):
-    # Linker Stick = Bewegung
-    x_axis = self.joystick.get_axis(0)
-    y_axis = self.joystick.get_axis(1)
-
-    # A-Button = Turbo
-    if self.joystick.get_button(0):
-        self.speed = 200
-
-    self.move(x_axis, y_axis)
-```
-
-### 6. Sprachsteuerung 🔊
-
-**Voice Commands:**
-
-```python
-import speech_recognition as sr
-
-def listen_for_command(self):
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        audio = recognizer.listen(source)
-        command = recognizer.recognize_google(audio, language="de-DE")
-
-        if "vorwärts" in command:
-            self.move_forward()
-        elif "stop" in command:
-            self.stop()
-        elif "dreh dich um" in command:
-            self.turn(180)
-```
-
-**Alexa/Google Assistant Integration:**
-
-```python
-# AWS Lambda für Alexa Skill
-def lambda_handler(event, context):
-    intent = event['request']['intent']['name']
-
-    if intent == "MoveForwardIntent":
-        robot.send_command("FORWARD")
-        return speak("Roboter bewegt sich vorwärts")
-```
-
-### 7. Schwarm-Intelligenz 👥
-
-**Multi-Roboter Koordination:**
-
-```python
-class RobotSwarm:
-    def __init__(self):
-        self.robots = []
-
-    def add_robot(self, ip):
-        robot = BrainBotRemote(ip)
-        self.robots.append(robot)
-
-    def formation_drive(self, formation="line"):
-        # Alle Roboter in Formation fahren
-        for i, robot in enumerate(self.robots):
-            position = self.calculate_formation_position(i, formation)
-            robot.navigate_to(position)
-
-    def synchronized_dance(self):
-        # Choreografierte Bewegungen
-        for robot in self.robots:
-            robot.send_command("DANCE_MOVE_1")
-```
-
-### 8. Smart-Home Integration 🏠
-
-**MQTT Integration:**
-
-```python
-import paho.mqtt.client as mqtt
-
-def connect_to_smart_home(self):
-    client = mqtt.Client()
-    client.connect("homeassistant.local", 1883)
-
-    # Roboter als Gerät verfügbar machen
-    client.publish("homeassistant/robot/status", "online")
-
-def trigger_on_event(self, event):
-    # Roboter reagiert auf Smart-Home Events
-    if event == "doorbell_ring":
-        self.navigate_to_door()
-        self.send_notification("Besucher an der Tür")
-```
-
-### 9. Cloud & Remote Access ☁️
-
-**Remote-Steuerung über Internet:**
-
-```python
-# Tunnel mit ngrok oder eigener Cloud
-from flask import Flask
-app = Flask(__name__)
-
-@app.route('/remote/command/<cmd>')
-def remote_command(cmd):
-    # Von überall auf der Welt steuerbar
-    robot.send_command(cmd)
-    return "Command executed"
-```
-
-**Cloud-Datenspeicherung:**
-
-```python
-def upload_sensor_data(self):
-    data = {
-        'timestamp': datetime.now(),
-        'temperature': self.read_temperature(),
-        'distance': self.read_ultrasonic(),
-        'position': self.get_position()
-    }
-    # Upload zu AWS/Firebase/InfluxDB
-    cloud_db.insert(data)
-```
-
-### 10. Machine Learning Training 🤖🎓
-
-**Reinforcement Learning:**
-
-```python
-import tensorflow as tf
-
-def train_autonomous_driving(self):
-    # Roboter lernt durch Versuch und Irrtum
-    for episode in range(1000):
-        state = self.get_sensor_data()
-        action = self.policy_network.predict(state)
-        reward = self.execute_action(action)
-        self.update_network(state, action, reward)
-```
-
-## Hardware-Erweiterungen
-
-### Empfohlene Sensoren:
-
-- 🔵 **Ultraschall-Sensor** (HC-SR04) - Abstandsmessung
-- 📷 **Kamera-Modul** (Raspberry Pi Camera) - Computer Vision
-- 🧭 **IMU-Sensor** (MPU6050) - Gyro & Beschleunigung
-- 🌡️ **Temperatur-Sensor** (DHT22) - Umgebungsmessung
-- 🎤 **Mikrofon-Array** - Spracherkennung
-- 💡 **LED-Strips** (WS2812B) - Statusanzeige & Effekte
-- 🔊 **Lautsprecher** - Audio-Feedback
-
-### Mögliche Roboter-Plattformen:
-
-- Arduino-basierte Roboter
-- Raspberry Pi Roboter
-- ESP32-gesteuerte Roboter
-- Lego Mindstorms EV3
-- Custom PCB Design
-
-## Community & Contribution
-
-Haben Sie eigene Ideen? 💡
-
-1. **Fork** das Repository
-2. **Erstellen** Sie einen Feature-Branch
-3. **Implementieren** Sie Ihre Idee
-4. **Testen** Sie ausführlich
-5. **Pull Request** erstellen
-
-**Diskussionen & Vorschläge:**
-
-- [GitHub Discussions](https://github.com/marcus39-web/Pyton-Roboter-Interface/discussions)
-- [Feature Requests](https://github.com/marcus39-web/Pyton-Roboter-Interface/issues)
-
-## Changelog
-
-### Version 1.0.0 (2026-03-02)
-
-- ✅ Initiales Release
-- ✅ OOP-Struktur implementiert
-- ✅ Logging-System eingerichtet
-- ✅ Unit-Tests (100% Coverage)
-- ✅ Vollständige Dokumentation
-
----
-
-**⭐ Wenn Ihnen dieses Projekt gefällt, geben Sie ihm einen Star auf GitHub!**
-
-## Heartbeat-System 💓
-
-### Warum Heartbeat wichtig ist
-
-**Problem bei WLAN-Verbindungen:**
-
-- PC sitzt im 2. Stock, Roboter im Erdgeschoss
-- WLAN kann im Treppenhaus oder durch Wände abbrechen
-- **Ohne Heartbeat:** Roboter bemerkt Disconnect nicht → läuft unkontrolliert weiter! ⚠️
-- **Mit Heartbeat:** Roboter stoppt sofort bei Signal-Ausfall
-
-**Besonders wichtig für:**
-
-- FEZ Bit / SITCore Hardware
-- WLAN-gesteuerte Roboter
-- Große Entfernungen zwischen PC und Roboter
-- Sicherheitskritische Anwendungen
-
-### Heartbeat Funktionsweise
-
-```python
-# Automatisches Lebenszeichen-System
-
-┌─────────────────────────────────────┐
-│  PC (2. Stock)                      │
-│  - Hauptprogramm läuft              │
-│  - Heartbeat-Thread läuft parallel  │
-└─────────────────────────────────────┘
-           ↓ Alle 2 Sekunden ↓
-        "HB" Signal (2 Bytes)
-           ↓ über WLAN ↓
-┌─────────────────────────────────────┐
-│  Roboter (Erdgeschoss)              │
-│  - Wartet auf Heartbeat             │
-│  - Bei Timeout: STOP                │
-└─────────────────────────────────────┘
-```
-
-**Ablauf:**
-
-1. PC und Roboter verbunden
-2. `start_heartbeat()` gestartet
-3. Jede Sekunde: PC sendet "HB"
-4. Roboter empfängt "HB" → läuft weiter
-5. WLAN-Abbruch → kein "HB" für 5 Sekunden
-6. Roboter-Timeout → AUTOMATISCHER STOP ⚠️
-7. Programmierer drückt NICHT rechtzeitig "STOP"
-8. **Roboter stoppt trotzdem!** ✅ SICHERHEIT
-
-### Heartbeat Verwendung
-
-#### Einfaches Beispiel
+Erstellen Sie `test_robot.py`:
 
 ```python
 from basis_class import BrainBotRemote
 import time
 
-# Roboter-Instanz mit Heartbeat-Intervall erstellen
+# Roboter-Instanz erstellen
 robot = BrainBotRemote(
-    robot_ip="192.168.1.100",
+    robot_ip="192.168.1.100",  # ← IHRE ROBOTER-IP!
     port=5000,
-    heartbeat_interval=2.0  # Alle 2 Sekunden
+    heartbeat_interval=2.0
 )
 
-# Verbindung herstellen
+# Verbindung versuchen
 if robot.connect():
-    # ⭐ WICHTIG: Heartbeat starten!
+    print("✅ Roboter verbunden!")
+
+    # Heartbeat starten (WICHTIG!)
     robot.start_heartbeat()
 
     try:
-        # Befehle senden (Heartbeat läuft im Hintergrund)
+        # Befehle senden
+        print("→ Sende FORWARD...")
         robot.send_command("FORWARD")
         time.sleep(3)
 
-        robot.send_command("TURN_LEFT")
-        time.sleep(2)
-
+        print("→ Sende STOP...")
         robot.send_command("STOP")
 
     finally:
-        # Heartbeat immer stoppen (auch bei Fehlern!)
+        # Sauberes Herunterfahren
         robot.stop_heartbeat()
         robot.disconnect()
+        print("✅ Disconnected")
+else:
+    print("❌ Roboter nicht erreichbar!")
+    print("Tipps:")
+    print("  1. Ist der Roboter eingeschaltet?")
+    print("  2. Ist die richtige IP eingestellt?")
+    print("  3. Sind Sie im gleichen WLAN-Netz?")
 ```
 
-#### Mit Exception-Handling
+**Schritt 3: Ausführen**
+
+```bash
+python test_robot.py
+```
+
+## Befehls-Referenz
+
+### Standard-Befehle
+
+| Befehl       | Funktion           | Beispiel                           |
+| ------------ | ------------------ | ---------------------------------- |
+| `FORWARD`    | Vorwärts fahren    | `robot.send_command("FORWARD")`    |
+| `BACKWARD`   | Rückwärts fahren   | `robot.send_command("BACKWARD")`   |
+| `TURN_LEFT`  | Nach links drehen  | `robot.send_command("TURN_LEFT")`  |
+| `TURN_RIGHT` | Nach rechts drehen | `robot.send_command("TURN_RIGHT")` |
+| `STOP`       | Sofort stoppen     | `robot.send_command("STOP")`       |
+| `ROTATE_180` | 180° Drehung       | `robot.send_command("ROTATE_180")` |
+
+### Erweiterte Befehle (Hardware-abhängig)
 
 ```python
-import time
-from basis_class import BrainBotRemote
+# Geschwindigkeit setzen (0-255)
+robot.send_command("SPEED:150")
 
-try:
-    robot = BrainBotRemote("192.168.1.100", port=5000, heartbeat_interval=2.0)
+# LED-Farbe (RGB)
+robot.send_command("LED:255:0:0")  # Rot
 
-    if not robot.connect():
-        raise ConnectionError("Roboter nicht erreichbar")
+# Sensor-Abfrage
+robot.send_command("SENSOR:ULTRASONIC")
 
-    # Heartbeat starten
-    if not robot.start_heartbeat():
-        raise RuntimeError("Heartbeat konnte nicht gestartet werden")
+# Servo-Motor (0-180°)
+robot.send_command("SERVO:90")
 
-    # Programmlogik hier...
-    robot.send_command("FORWARD")
-    time.sleep(5)
-    robot.send_command("STOP")
-
-except Exception as e:
-    print(f"Fehler: {e}")
-
-finally:
-    # Sauberes Herunterfahren
-    robot.stop_heartbeat()
-    robot.disconnect()
+# Summer/Buzzer
+robot.send_command("BUZZ:1000")  # 1000ms
 ```
 
-#### Mit verschiedenen Heartbeat-Intervallen
+## Logging & Debugging
 
-```python
-# Schnelles Heartbeat (für instabile WLAN-Verbindungen)
-robot_fast = BrainBotRemote(
-    robot_ip="192.168.1.100",
-    heartbeat_interval=1.0  # Jede Sekunde
-)
+### Log-Dateien
 
-# Normales Heartbeat (empfohlen)
-robot_normal = BrainBotRemote(
-    robot_ip="192.168.1.100",
-    heartbeat_interval=2.0  # Alle 2 Sekunden
-)
-
-# Seltenes Heartbeat (für sehr stabile Verbindungen)
-robot_slow = BrainBotRemote(
-    robot_ip="192.168.1.100",
-    heartbeat_interval=5.0  # Alle 5 Sekunden
-)
-```
-
-### Heartbeat Konfiguration
-
-#### Empfohlene Werte
-
-| Szenario              | Intervall | Grund                    |
-| --------------------- | --------- | ------------------------ |
-| 🔴 Instabile WLAN     | 1.0s      | Schnelle Erkennung       |
-| 🟡 Normale Nutzung    | 2.0s      | **Standard (empfohlen)** |
-| 🟢 Stabile Verbindung | 5.0s      | Weniger Netzwerklast     |
-| 🏠 Smart-Home         | 3.0s      | Balanciert               |
-| 🚗 Mobile Nutzung     | 1.5s      | Höhere Frequenz          |
-
-#### Hardware-spezifische Einstellungen
-
-**FEZ Bit / SITCore:**
-
-```python
-# Optimalste Einstellung für FEZ Bit
-robot = BrainBotRemote(
-    robot_ip="192.168.1.100",
-    port=5000,
-    heartbeat_interval=2.0  # 2 Sekunden
-)
-robot.connect()
-robot.start_heartbeat()
-```
-
-**Arduino-basierte Roboter:**
-
-```python
-# Arduino kann schnelle Signale verarbeiten
-robot = BrainBotRemote(
-    robot_ip="192.168.1.100",
-    heartbeat_interval=1.0  # 1 Sekunde für schnellere Reaktion
-)
-```
-
-**Raspberry Pi Roboter:**
-
-```python
-# Raspberry Pi benötigt mehr Zeit für Verarbeitung
-robot = BrainBotRemote(
-    robot_ip="192.168.1.100",
-    heartbeat_interval=3.0  # 3 Sekunden
-)
-```
-
-### Heartbeat Log-Ausgabe
-
-**Logfile-Beispiel (`robot_log.txt`):**
+Die `robot_log.txt` wird automatisch erstellt und alle Aktionen protokolliert:
 
 ```
 [2026-03-02 14:30:15] [CONNECT] Verbunden mit 192.168.1.100:5000
 [2026-03-02 14:30:16] [HEARTBEAT] Thread gestartet (Intervall: 2.0s)
-[2026-03-02 14:30:16] [HEARTBEAT] Lebenszeichen gesendet (HB)
-[2026-03-02 14:30:18] [HEARTBEAT] Lebenszeichen gesendet (HB)
 [2026-03-02 14:30:18] [COMMAND] Befehl gesendet: FORWARD
 [2026-03-02 14:30:20] [HEARTBEAT] Lebenszeichen gesendet (HB)
-[2026-03-02 14:30:22] [HEARTBEAT] Lebenszeichen gesendet (HB)
-[2026-03-02 14:30:24] [HEARTBEAT] Lebenszeichen gesendet (HB)
 [2026-03-02 14:30:24] [COMMAND] Befehl gesendet: STOP
-[2026-03-02 14:30:26] [HEARTBEAT] Gestoppt
 [2026-03-02 14:30:26] [DISCONNECT] Verbindung getrennt
 ```
 
-**Fehler-Beispiel:**
+**Log-Datei anschauen:**
 
+```bash
+# Windows
+type robot_log.txt
+
+# Linux/macOS
+cat robot_log.txt
+
+# Live-Anzeige (Windows)
+Get-Content robot_log.txt -Wait
+
+# Live-Anzeige (Linux/macOS)
+tail -f robot_log.txt
 ```
-[2026-03-02 14:35:10] [HEARTBEAT] Thread gestartet (Intervall: 2.0s)
-[2026-03-02 14:35:12] [HEARTBEAT] Lebenszeichen gesendet (HB)
-[2026-03-02 14:35:14] [HEARTBEAT] Lebenszeichen gesendet (HB)
-[2026-03-02 14:35:16] [ERROR] Heartbeat-Fehler: [Errno 10054] Connection reset by peer
-[2026-03-02 14:35:16] [HEARTBEAT] Thread gestoppt
-```
 
-### Heartbeat Thread-Sicherheit
-
-**Thread-Konzept:**
+### Debug-Modus
 
 ```python
-┌─ Hauptprogramm ────────────────────┐
-│                                    │
-│  robot.start_heartbeat()           │
-│  ↓                                 │
-│  ┌─ Heartbeat-Thread ─────┐       │
-│  │                        │       │
-│  │ Schleife:              │       │
-│  │ - Warte 2 Sekunden     │       │
-│  │ - Sende "HB"           │       │
-│  │ - Log Eintrag          │       │
-│  │ - Prüfe heartbeat_active
-│  │ (läuft parallel!)      │       │
-│  └────────────────────────┘       │
-│                                    │
-│  robot.send_command("FORWARD")    │
-│  (blockiert NICHT auf Heartbeat)  │
-│                                    │
-│  robot.stop_heartbeat()           │
-│  (wahtet auf Thread-Ende)         │
-│                                    │
-└────────────────────────────────────┘
+# Verbose Output für Debugging
+robot = BrainBotRemote("192.168.1.100")
+
+# Alle Aktionen werden automatisch geloggt
+if robot.connect():
+    robot.start_heartbeat()
+
+    # Überprüfen Sie robot_log.txt für Details
+
+    robot.stop_heartbeat()
+    robot.disconnect()
 ```
 
-**Wichtige Eigenschaften:**
+## Häufige Fehlermeldungen
 
-- ✅ **Non-Blocking:** Hauptprogramm läuft weiter
-- ✅ **Thread-Safe:** Nutzt `threading.Thread`
-- ✅ **Daemon-Mode:** Wird mit Hauptprogramm beendet
-- ✅ **Sauber beendbar:** Mit `stop_heartbeat()`
+### ❌ "Connection refused"
 
-### Troubleshooting Heartbeat
-
-#### Problem: "Heartbeat läuft bereits!"
-
-```python
-# ❌ FALSCH: Zweimal starten
-robot.start_heartbeat()
-robot.start_heartbeat()  # Error!
-
-# ✅ RICHTIG: Nur einmal starten
-robot.start_heartbeat()
+```
+Fehler: [Errno 10061] No connection could be made because the target machine actively refused it
 ```
 
-#### Problem: Heartbeat stoppt sofort
+**Ursachen & Lösungen:**
+
+1. ❌ Roboter nicht eingeschaltet → **Roboter einschalten!**
+2. ❌ Falsche IP-Adresse → **IP prüfen (Router oder Display)**
+3. ❌ Falscher Port → **Port 5000 verwenden**
+4. ❌ Firewall blockiert → **Firewall prüfen**
+
+### ❌ "Connection timeout"
+
+```
+Fehler: [Errno 10060] A connection attempt failed because the connected party did not properly respond
+```
+
+**Ursachen & Lösungen:**
+
+1. ❌ WLAN zu schwach → **Näher an Roboter gehen**
+2. ❌ Roboter offline → **Verbindung überprüfen**
+3. ❌ Router-Problem → **Router neu starten**
+
+### ⚠️ "Heartbeat-Fehler"
+
+```
+[ERROR] Heartbeat-Fehler: [Errno 10054] Connection reset by peer
+```
+
+**Ursachen & Lösungen:**
+
+1. ❌ WLAN abgebrochen → **Verbindung prüfen**
+2. ❌ Roboter überlastet → **Weniger Befehle senden**
+3. ❌ Heartbeat-Intervall zu kurz → **Auf 3-5s erhöhen**
+
+### ❌ "Keine Verbindung"
+
+```
+✗ Keine Verbindung zum Roboter
+```
+
+**Schnell-Checklist:**
+
+- [ ] Roboter eingeschaltet?
+- [ ] WLAN verbunden?
+- [ ] Richtige IP eingegeben?
+- [ ] Firewall deaktiviert?
+- [ ] Kabel sitzen fest?
+- [ ] Roboter nicht zu weit weg?
+
+## Performance-Tipps
+
+### Optimale Einstellungen
 
 ```python
-# ❌ FALSCH: Disconnect vor stop_heartbeat
-robot.start_heartbeat()
-robot.disconnect()  # Socket wird geschlossen!
+# Schnelle, stabile Verbindung
+robot = BrainBotRemote(
+    robot_ip="192.168.1.100",
+    port=5000,
+    heartbeat_interval=2.0  # Optimal
+)
+```
 
-# ✅ RICHTIG: Zuerst Heartbeat stoppen
+### Best Practices
+
+```python
+# ✅ GUT: Befehle mit Pausen
+robot.send_command("FORWARD")
+time.sleep(2)
+robot.send_command("TURN_LEFT")
+time.sleep(1)
+robot.send_command("STOP")
+
+# ❌ SCHLECHT: Zu viele Befehle hintereinander
+robot.send_command("FORWARD")
+robot.send_command("TURN_LEFT")  # Zu schnell!
+robot.send_command("STOP")
+```
+
+### CPU & RAM
+
+```
+Speicher-Nutzung:   ~30-50 MB (minimal)
+CPU-Auslastung:     <1% (negligible)
+Netzwerk-Traffic:   <1 KB/s (sehr gering)
+
+→ Auch auf Raspberry Pi oder schwacher Hardware möglich!
+```
+
+## Erweiterte Verwendung
+
+### Mit Sensor-Daten arbeiten
+
+```python
+def drive_until_obstacle():
+    """Fährt bis zum Hindernis"""
+    robot.send_command("FORWARD")
+
+    while True:
+        distance = robot.read_distance()
+
+        if distance < 20:  # 20cm
+            robot.send_command("STOP")
+            break
+
+        time.sleep(0.5)
+```
+
+### Programmierbare Routen
+
+```python
+def square_route():
+    """Rechteck fahren"""
+    for _ in range(4):
+        robot.send_command("FORWARD")
+        time.sleep(2)
+
+        robot.send_command("TURN_RIGHT")
+        time.sleep(1)
+
+    robot.send_command("STOP")
+
+# Ausführen
+robot.connect()
 robot.start_heartbeat()
-robot.stop_heartbeat()  # Sauber beenden
+square_route()
+robot.stop_heartbeat()
 robot.disconnect()
 ```
 
-#### Problem: Roboter reagiert langsam auf Heartbeat-Timeout
+### Mit Mehreren Robotern arbeiten
 
 ```python
-# Heartbeat-Intervall verkürzen
-robot = BrainBotRemote(
-    robot_ip="192.168.1.100",
-    heartbeat_interval=1.0  # Schneller! (statt 2.0)
-)
-robot.connect()
-robot.start_heartbeat()
-```
+# Mehrere Roboter-Instanzen
+robot1 = BrainBotRemote("192.168.1.100")
+robot2 = BrainBotRemote("192.168.1.101")
+robot3 = BrainBotRemote("192.168.1.102")
 
-#### Problem: Zu viel Netzwerk-Traffic
+# Alle verbinden
+robots = [robot1, robot2, robot3]
+for robot in robots:
+    robot.connect()
+    robot.start_heartbeat()
 
-```python
-# Heartbeat-Intervall verlängern
-robot = BrainBotRemote(
-    robot_ip="192.168.1.100",
-    heartbeat_interval=5.0  # Weniger Traffic (statt 2.0)
-)
-robot.connect()
-robot.start_heartbeat()
-```
-
-### Best Practice Checkliste ✅
-
-```python
-# ✅ MUSTER-IMPLEMENTIERUNG
-
-from basis_class import BrainBotRemote
-import time
-
-def safe_robot_control():
-    """Sichere Roboter-Steuerung mit Heartbeat"""
-    robot = None
-
-    try:
-        # 1. Instanz erstellen
-        robot = BrainBotRemote(
-            robot_ip="192.168.1.100",
-            heartbeat_interval=2.0
-        )
-
-        # 2. Verbindung prüfen
-        if not robot.connect():
-            raise ConnectionError("Roboter nicht erreichbar")
-
-        # 3. Heartbeat aktivieren
-        if not robot.start_heartbeat():
-            raise RuntimeError("Heartbeat-Fehler")
-
-        # 4. Befehle senden
+try:
+    # Koordinierte Befehle
+    for robot in robots:
         robot.send_command("FORWARD")
-        time.sleep(2)
+
+    time.sleep(3)
+
+    for robot in robots:
         robot.send_command("STOP")
 
-    except Exception as e:
-        print(f"❌ Fehler: {e}")
-
-    finally:
-        # 5. Sauberes Herunterfahren (IMMER!)
-        if robot:
-            if robot.heartbeat_active:
-                robot.stop_heartbeat()
-            robot.disconnect()
-
-# Ausführen
-if __name__ == "__main__":
-    safe_robot_control()
+finally:
+    # Alle sauber beenden
+    for robot in robots:
+        robot.stop_heartbeat()
+        robot.disconnect()
 ```
 
-### Performance & Netzwerk
+## Sicherheit & Best Practices
 
-**Heartbeat-Datenvolumen:**
+### Kritische Sicherheitsregeln ⚠️
+
+```python
+# ❌ NICHT MACHEN:
+robot.connect()
+robot.send_command("FORWARD")
+# Fehler tritt auf → Roboter läuft weiter!
+
+# ✅ RICHTIG:
+robot.connect()
+robot.start_heartbeat()  # Heartbeat = Notbremse
+
+try:
+    robot.send_command("FORWARD")
+except:
+    robot.stop_heartbeat()
+    robot.disconnect()
+    raise
+
+robot.stop_heartbeat()
+robot.disconnect()
+```
+
+### Timeout-Handling
+
+```python
+import signal
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Programm zu lange ausgeführt")
+
+# Nach 30 Sekunden Abbruch
+signal.signal(signal.SIGALRM, timeout_handler)
+signal.alarm(30)
+
+try:
+    robot.connect()
+    robot.start_heartbeat()
+    # ... Code hier ...
+    signal.alarm(0)  # Timer annullieren
+except TimeoutError:
+    print("⚠️ Timeout! Roboter wird gestoppt...")
+    robot.stop_heartbeat()
+finally:
+    robot.disconnect()
+```
+
+## Entwickler-Tipps
+
+### Code-Style & Conventions
+
+```python
+# Folgen Sie PEP 8
+# https://www.python.org/dev/peps/pep-0008/
+
+# Type Hints verwenden
+def calculate_distance(x1: float, y1: float,
+                      x2: float, y2: float) -> float:
+    """Berechnet Distanz zwischen zwei Punkten"""
+    return ((x2-x1)**2 + (y2-y1)**2)**0.5
+
+# Docstrings schreiben
+class RobotController:
+    """Kontrolliert den BrainBot Roboter"""
+    pass
+```
+
+### Testing
+
+```bash
+# Alle Tests ausführen
+pytest tests/ -v
+
+# Nur einen Test-File
+pytest tests/test_basis_class.py -v
+
+# Mit Coverage-Report
+pytest tests/ --cov=BrainBot_AI --cov-report=html
+```
+
+### Versionskontrolle
+
+```bash
+# Vor jedem Commit prüfen
+git status
+git diff
+
+# Commits mit aussagekräftigen Messages
+git commit -m "Feature: Heartbeat-System implementiert"
+
+# Nicht: "Update" oder "Fix"
+```
+
+## Support & Issues
+
+### Problem melden
+
+1. **GitHub Issues:** https://github.com/marcus39-web/Pyton-Roboter-Interface/issues
+2. **Beschreibung:** Was haben Sie versucht?
+3. **Error-Message:** Komplette Fehlermeldung kopieren
+4. **Log-Datei:** robot_log.txt anhängen
+5. **Umgebung:** Python-Version, Betriebssystem, etc.
+
+### Community
+
+- 💬 **Discussions:** GitHub Discussions öffnen
+- 📧 **Email:** marcus39-web@github.com
+- 🐛 **Bug-Report:** Mit robot_log.txt
+- 💡 **Feature-Request:** Mit Use-Case beschreiben
+
+## Lizenz
+
+Dieses Projekt ist ein **Schulprojekt** von Marcus Reiser (2026).
 
 ```
-Heartbeat-Größe:  2 Bytes ("HB")
-Intervall:        2 Sekunden
-Häufigkeit:       30 pro Minute
-Datenvolumen:     60 Bytes/Minute = 3.6 KB/Stunde
-
-→ Vernachlässigbar! Kein Performance-Problem
+MIT License - Frei verwendbar für Bildungszwecke
 ```
 
-**CPU-Auslastung:**
+## Autor
 
-```
-Heartbeat-Thread:  < 0.1% CPU
-sleep(0.1):        Läuft nur 100ms pro Sekunde
-Gesamtauslastung:  Unmerklich klein
+**Marcus Reiser**
 
-→ Kein Problem auf schwacher Hardware (Raspberry Pi, Arduino)
-```
+- 🐙 GitHub: [marcus39-web](https://github.com/marcus39-web)
+- 🎓 Schulprojekt: BrainBot AI OOP Interface
+- 📅 Datum: März 2026
+- ⭐ Version: 1.0.0
+
+---
+
+## Danksagungen
+
+Spezial-Dank an:
+
+- 🎯 **GitHub Copilot** für Code-Unterstützung
+- 🤖 **FEZ Bit/SITCore** Community
+- 🏫 Schule für Hardware-Bereitstellung
+- 👥 Alle Tester und Mitwirkenden
+
+---
+
+**Viel Erfolg mit BrainBot AI!** 🚀⭐
