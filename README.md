@@ -130,6 +130,7 @@ python web_control_server.py --host 0.0.0.0 --web-port 8080 --robot-ip 127.0.0.1
 
 📖 **Detaillierte Web-Tests:** Siehe `README_TEST/README_WEB_STEUERUNG_TESTS.md`
 📖 **Keyboard-Only Tests:** Siehe `README_TEST/README_KEYBOARD_TESTS.md`
+📖 **Kartierungs-MVP Tests:** Siehe `README_TEST/README_MAP_MVP_TESTS.md`
 
 **Aktueller Stand (02.03.2026):**
 
@@ -139,6 +140,28 @@ python web_control_server.py --host 0.0.0.0 --web-port 8080 --robot-ip 127.0.0.1
 - ▶️ Wiedereinstieg zuhause: PC+iPhone ins gleiche WLAN, dann Web-Tests laut `README_TEST/README_WEB_STEUERUNG_TESTS.md`
 
 ### 🧠 Simulation & Lernmodus (ohne Roboter)
+
+### 🗺️ Kartierungs-MVP (lokal, ohne Roboter)
+
+Mit `map_mvp_server.py` läuft eine lokale Karten-Simulation mit 3 virtuellen Robotern.
+
+**Start:**
+
+```bash
+python map_mvp_server.py --host 0.0.0.0 --web-port 8090
+```
+
+**Öffnen:**
+
+- PC: `http://127.0.0.1:8090`
+- iPhone (gleiches WLAN): `http://<PC-IP>:8090`
+
+**Funktionen im MVP:**
+
+- Live-Karte mit Grid + Hindernissen
+- 3 simulierte Roboter inkl. Trails
+- Start / Pause / Ein Schritt / Reset
+- Vorbereitet für spätere echte Positionsdaten
 
 `main.py` nutzt Testdaten aus `simulation_data.json`:
 

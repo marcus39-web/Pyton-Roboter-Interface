@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>BrainBot Kartierungs-MVP</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #111; color: #f5f5f5; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 16px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+    button { min-height: 44px; border: 0; border-radius: 10px; padding: 0 14px; font-weight: 700; cursor: pointer; }
+    .primary { background: #2a7fff; color: #fff; }
+    .muted { background: #2e2e2e; color: #fff; }
+    .danger { background: #d32f2f; color: #fff; }
+    .status { padding: 10px; border-radius: 10px; background: #1d1d1d; margin-bottom: 12px; font-size: 14px; }
+    canvas { width: 100%; height: auto; border-radius: 12px; background: #161a1f; border: 1px solid #2c3138; }
+    .hint { opacity: .85; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>🗺️ BrainBot Kartierungs-MVP (Lokal)</h2>
+    <div id="status" class="status">Status: initialisiere...</div>
+
+    <div class="toolbar">
+      <button class="primary" id="runBtn">START SIM</button>
+      <button class="muted" id="pauseBtn">PAUSE SIM</button>
+      <button class="muted" id="stepBtn">EIN SCHRITT</button>
+      <button class="danger" id="resetBtn">RESET</button>
+    </div>
+
+    <canvas id="mapCanvas" width="900" height="600"></canvas>
+
+    <p class="hint">
+      Anzeige: 3 virtuelle Roboter, feste Hindernisse und Trails. Ohne Hardware lokal testbar.
+    </p>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const canvas = document.getElementById('mapCanvas');
+    const ctx = canvas.getContext('2d');
+    let latestState = null;
+
+    // Einheitlicher API-Aufruf für den lokalen Map-Server.
+    async function call(path, method = 'GET', body = null) {
+      const init = { method, headers: { 'Content-Type': 'application/json' } };
+      if (body !== null) {
+        init.body = JSON.stringify(body);
+      }
+      const response = await fetch(path, init);
+      return await response.json();
+    }
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function drawGrid(width, height, step = 50) {
+      ctx.strokeStyle = '#1f2630';
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= width; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= height; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawObstacles(obstacles) {
+      ctx.fillStyle = '#3f3f46';
+      for (const obstacle of obstacles) {
+        ctx.fillRect(obstacle.x, obstacle.y, obstacle.w, obstacle.h);
+      }
+    }
+
+    function drawRobot(robot) {
+      // Trail zeichnen.
+      if (robot.trail && robot.trail.length > 1) {
+        ctx.strokeStyle = robot.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(robot.trail[0][0], robot.trail[0][1]);
+        for (const point of robot.trail) {
+          ctx.lineTo(point[0], point[1]);
+        }
+        ctx.stroke();
+      }
+
+      // Roboterkörper zeichnen.
+      ctx.fillStyle = robot.color;
+      ctx.beginPath();
+      ctx.arc(robot.x, robot.y, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Kopf-/Richtungsmarker zeichnen.
+      const hx = robot.x + Math.cos(robot.heading) * 16;
+      const hy = robot.y + Math.sin(robot.heading) * 16;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(robot.x, robot.y);
+      ctx.lineTo(hx, hy);
+      ctx.stroke();
+
+      // ID-Label.
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '12px Segoe UI';
+      ctx.fillText(robot.id, robot.x + 12, robot.y - 12);
+    }
+
+    function render(state) {
+      if (!state || !state.map) {
+        return;
+      }
+
+      const width = state.map.width;
+      const height = state.map.height;
+
+      ctx.clearRect(0, 0, width, height);
+      drawGrid(width, height);
+      drawObstacles(state.map.obstacles || []);
+
+      for (const robot of (state.robots || [])) {
+        drawRobot(robot);
+      }
+
+      setStatus(`Status: tick=${state.tick} | running=${state.running} | roboter=${(state.robots || []).length}`);
+    }
+
+    async function refreshState() {
+      try {
+        latestState = await call('/api/map-state');
+        render(latestState);
+      } catch {
+        setStatus('Status: Fehler beim Abrufen von /api/map-state');
+      }
+    }
+
+    // Toolbar-Aktionen.
+    document.getElementById('runBtn').addEventListener('click', async () => {
+      await call('/api/run', 'POST', { running: true });
+      await refreshState();
+    });
+
+    document.getElementById('pauseBtn').addEventListener('click', async () => {
+      await call('/api/run', 'POST', { running: false });
+      await refreshState();
+    });
+
+    document.getElementById('stepBtn').addEventListener('click', async () => {
+      await call('/api/step', 'POST', {});
+      await refreshState();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', async () => {
+      await call('/api/reset', 'POST', {});
+      await refreshState();
+    });
+
+    // Laufende Aktualisierung für Live-Mapping.
+    setInterval(refreshState, 350);
+    refreshState();
+  </script>
+</body>
+</html>
