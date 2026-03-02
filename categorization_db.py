@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS feedback (
 class CategorizationDatabase:
     host: str = "127.0.0.1"
     port: int = 3306
-    user: str = "brainbot"
-    password: str = "brainbot_pass"
+    user: str = "root"
+    password: str = ""
     database: str = "brainbot_ai"
     enabled: bool = False
 
@@ -70,8 +70,8 @@ class CategorizationDatabase:
         return cls(
             host=os.getenv("MYSQL_HOST", "127.0.0.1"),
             port=int(os.getenv("MYSQL_PORT", "3306")),
-            user=os.getenv("MYSQL_USER", "brainbot"),
-            password=os.getenv("MYSQL_PASSWORD", "brainbot_pass"),
+            user=os.getenv("MYSQL_USER", "root"),
+            password=os.getenv("MYSQL_PASSWORD", ""),
             database=os.getenv("MYSQL_DATABASE", "brainbot_ai"),
             enabled=enabled,
         )

@@ -30,6 +30,7 @@ docker compose up -d
 
 - MySQL: `127.0.0.1:3306`
 - Adminer: `http://127.0.0.1:8081`
+- Login: User `root`, Passwort leer
 
 4. Kategorisierungs-Persistenz aktivieren:
 
@@ -98,7 +99,7 @@ pytest tests/ -v
 - **Schritte:**
   1. Mock-Server starten: `python test_server.py`
   2. Client starten: `python main.py`
-  3. In Adminer anmelden (Server `mysql`, DB `brainbot_ai`, User/Pass aus `.env`).
+  3. In Adminer anmelden (Server `mysql`, DB `brainbot_ai`, User `root`, Passwort leer).
   4. Tabellen `samples` und `predictions` öffnen.
 - **Erwartung:**
   - Neue Datensätze in `samples` und `predictions` nach jedem Lauf.

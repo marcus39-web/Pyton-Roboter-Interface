@@ -105,6 +105,11 @@ Enthalten:
 - `mysql` (Port `3306`)
 - `adminer` für DB-Ansicht (Port `8081`, Browser: `http://127.0.0.1:8081`)
 
+Standard-Zugang für diese Konfiguration:
+
+- User: `root`
+- Passwort: *(leer)*
+
 **3. Python-Seite aktivieren:**
 
 In `.env` muss `APP_USE_MYSQL=1` gesetzt sein. Dann initialisiert `main.py` beim Start das Schema und schreibt Entscheidungen zusätzlich in MySQL.
