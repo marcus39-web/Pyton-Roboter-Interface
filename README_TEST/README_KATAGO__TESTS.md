@@ -181,3 +181,9 @@ Die Kategorisierung gilt als testbar dokumentiert, wenn:
 - Lesbarkeitsfix für den unteren Vermaßungstext ist umgesetzt.
 
 Dieser Stand wurde als finaler Dokumentationsstand gespeichert und auf GitHub gepusht.
+
+## Kurzkommentar (Pause / Weiter)
+
+Pausepunkt: Kategorisierung, Raum-Draufsicht, JPG-Export und Historie sind fertig umgesetzt.
+
+Nächster Schritt beim Wiedereinstieg: reale Testdaten sammeln und die Kategorisierung mit Feedback (`korrekt/falsch`) erweitern.
