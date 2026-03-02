@@ -137,12 +137,15 @@ pytest tests/ -v
 - **Ziel:** Prüfen, ob eine Datei mit Metadaten erzeugt wird.
 - **Schritte:**
   1. In der Report-UI `Zimmername`, `Breite (cm)`, `Höhe (cm)` ausfüllen.
+  2. Optional `Radius` und `Aussparung` setzen (Seite/Breite/Tiefe).
   2. `JPG EXPORT` auslösen.
   3. Ordner `categorization_exports/` prüfen.
 - **Erwartung:**
   - Eine `.jpg` Datei wurde erzeugt.
   - Dateiname enthält Zimmername und Zeitraum.
   - Datei enthält Text: `Erstellt am`, Zimmername, Vermaßung.
+  - Datei zeigt Draufsicht des Raums inkl. seitlicher Vermaßung (DIN-ähnlich, schematisch).
+  - Bei gesetzten Werten sind Radius/Aussparung in der Zeichnung erkennbar.
   - `DOWNLOAD LETZTER JPG` lädt die zuletzt erstellte Datei direkt herunter.
   - In der Export-Historie erscheint der neue Eintrag mit Download-Link.
 

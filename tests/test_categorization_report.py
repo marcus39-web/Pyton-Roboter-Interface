@@ -4,7 +4,7 @@ import json
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from categorization_report_server import aggregate_blocks, calculate_totals, CategorizationReportService
+from categorization_report_server import aggregate_blocks, calculate_totals, CategorizationReportService, normalize_room_geometry
 
 
 def test_aggregate_blocks_by_periods():
@@ -75,3 +75,39 @@ def test_list_recent_exports_returns_latest_jpgs(tmp_path):
     assert exports[0]["filename"] == "new.jpg"
     assert exports[1]["filename"] == "old.jpg"
     assert exports[0]["download_url"] == "/exports/new.jpg"
+
+
+def test_normalize_room_geometry_accepts_valid_cutout():
+    ok, geometry, message = normalize_room_geometry(
+        {
+            "room_width_cm": 500,
+            "room_height_cm": 400,
+            "corner_radius_cm": 20,
+            "cutout_side": "top",
+            "cutout_width_cm": 120,
+            "cutout_depth_cm": 60,
+        }
+    )
+
+    assert ok is True
+    assert message == "ok"
+    assert geometry["cutout_side"] == "top"
+    assert geometry["room_width_cm"] == 500
+    assert geometry["cutout_depth_cm"] == 60
+
+
+def test_normalize_room_geometry_rejects_invalid_cutout_width():
+    ok, geometry, message = normalize_room_geometry(
+        {
+            "room_width_cm": 300,
+            "room_height_cm": 200,
+            "corner_radius_cm": 0,
+            "cutout_side": "top",
+            "cutout_width_cm": 300,
+            "cutout_depth_cm": 10,
+        }
+    )
+
+    assert ok is False
+    assert geometry == {}
+    assert "Aussparungsbreite" in message

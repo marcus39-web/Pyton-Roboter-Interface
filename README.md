@@ -178,6 +178,8 @@ Mit `categorization_report_server.py` gibt es eine einfache visuelle Ausgabe der
 - Blockansicht in Tag/Woche/Monat/Jahr
 - Tabellenansicht mit `Erstellt am`, `Zimmername`, Distanz, Kategorie, Kommando
 - JPG-Export mit Metadaten (`Erstellt am`, Zimmername, Vermaßung)
+- Raum-Draufsicht mit DIN-ähnlicher, seitlicher Vermaßung (Länge/Breite)
+- Erweiterte Geometrie: Eckradius und Aussparung (Seite/Breite/Tiefe)
 - Direkter Download der zuletzt erzeugten JPG-Datei in der UI
 - Export-Historie: letzte 10 JPG-Dateien mit Klick-Download
 

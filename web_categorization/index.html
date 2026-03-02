@@ -21,6 +21,8 @@
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border-bottom: 1px solid #2c3138; text-align: left; padding: 8px 6px; font-size: 13px; }
     .section { border: 1px solid #2c3138; border-radius: 12px; padding: 12px; margin-top: 14px; background: #14181d; }
+    .room-canvas { width: 100%; max-width: 920px; border: 1px solid #2c3138; border-radius: 10px; background: #f5f7fb; }
+    .hint { font-size: 12px; opacity: .85; }
   </style>
 </head>
 <body>
@@ -40,6 +42,28 @@
       <div class="field">
         <label for="roomHeight">Höhe (cm)</label>
         <input id="roomHeight" type="number" min="1" value="400" />
+      </div>
+      <div class="field">
+        <label for="cornerRadius">Radius (cm)</label>
+        <input id="cornerRadius" type="number" min="0" value="0" />
+      </div>
+      <div class="field">
+        <label for="cutoutSide">Aussparung Seite</label>
+        <select id="cutoutSide">
+          <option value="none" selected>keine</option>
+          <option value="top">oben</option>
+          <option value="bottom">unten</option>
+          <option value="left">links</option>
+          <option value="right">rechts</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="cutoutWidth">Aussparung Breite (cm)</label>
+        <input id="cutoutWidth" type="number" min="0" value="0" />
+      </div>
+      <div class="field">
+        <label for="cutoutDepth">Aussparung Tiefe (cm)</label>
+        <input id="cutoutDepth" type="number" min="0" value="0" />
       </div>
       <div class="field">
         <label for="period">Blockansicht</label>
@@ -65,6 +89,12 @@
     </div>
 
     <div id="lastExportInfo" class="status">Letzter Export: -</div>
+
+    <div class="section">
+      <h3>Raum-Draufsicht mit Vermaßung</h3>
+      <canvas id="roomCanvas" class="room-canvas" width="920" height="540"></canvas>
+      <p class="hint">DIN-ähnliche Vermaßung (schematisch): Länge, Breite, Aussparung, Radius.</p>
+    </div>
 
     <div class="cards">
       <div class="card"><div>Gesamt</div><div id="totalAll" class="num">0</div></div>
@@ -112,7 +142,133 @@
     const exportsBody = document.getElementById('exportsBody');
     const downloadBtn = document.getElementById('downloadBtn');
     const lastExportInfoEl = document.getElementById('lastExportInfo');
+    const roomCanvas = document.getElementById('roomCanvas');
+    const roomCtx = roomCanvas.getContext('2d');
     let lastDownloadUrl = '';
+
+    function getRoomGeometry() {
+      const room_width_cm = Number(document.getElementById('roomWidth').value);
+      const room_height_cm = Number(document.getElementById('roomHeight').value);
+      const corner_radius_cm = Math.max(0, Number(document.getElementById('cornerRadius').value));
+      const cutout_side = document.getElementById('cutoutSide').value;
+      const cutout_width_cm = Math.max(0, Number(document.getElementById('cutoutWidth').value));
+      const cutout_depth_cm = Math.max(0, Number(document.getElementById('cutoutDepth').value));
+      return { room_width_cm, room_height_cm, corner_radius_cm, cutout_side, cutout_width_cm, cutout_depth_cm };
+    }
+
+    function roundedRectPath(ctx, x, y, w, h, r) {
+      const radius = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + w - radius, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+      ctx.lineTo(x + w, y + h - radius);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+      ctx.lineTo(x + radius, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    function drawDimHorizontal(x1, x2, y, refY, label) {
+      roomCtx.strokeStyle = '#111';
+      roomCtx.fillStyle = '#111';
+      roomCtx.lineWidth = 1;
+      roomCtx.beginPath();
+      roomCtx.moveTo(x1, refY); roomCtx.lineTo(x1, y);
+      roomCtx.moveTo(x2, refY); roomCtx.lineTo(x2, y);
+      roomCtx.moveTo(x1, y); roomCtx.lineTo(x2, y);
+      roomCtx.stroke();
+      roomCtx.beginPath();
+      roomCtx.moveTo(x1, y); roomCtx.lineTo(x1 + 8, y - 4); roomCtx.lineTo(x1 + 8, y + 4); roomCtx.closePath();
+      roomCtx.fill();
+      roomCtx.beginPath();
+      roomCtx.moveTo(x2, y); roomCtx.lineTo(x2 - 8, y - 4); roomCtx.lineTo(x2 - 8, y + 4); roomCtx.closePath();
+      roomCtx.fill();
+      roomCtx.fillText(label, ((x1 + x2) / 2) - 35, y - 8);
+    }
+
+    function drawDimVertical(x, y1, y2, refX, label) {
+      roomCtx.strokeStyle = '#111';
+      roomCtx.fillStyle = '#111';
+      roomCtx.lineWidth = 1;
+      roomCtx.beginPath();
+      roomCtx.moveTo(refX, y1); roomCtx.lineTo(x, y1);
+      roomCtx.moveTo(refX, y2); roomCtx.lineTo(x, y2);
+      roomCtx.moveTo(x, y1); roomCtx.lineTo(x, y2);
+      roomCtx.stroke();
+      roomCtx.beginPath();
+      roomCtx.moveTo(x, y1); roomCtx.lineTo(x - 4, y1 + 8); roomCtx.lineTo(x + 4, y1 + 8); roomCtx.closePath();
+      roomCtx.fill();
+      roomCtx.beginPath();
+      roomCtx.moveTo(x, y2); roomCtx.lineTo(x - 4, y2 - 8); roomCtx.lineTo(x + 4, y2 - 8); roomCtx.closePath();
+      roomCtx.fill();
+      roomCtx.fillText(label, x - 70, ((y1 + y2) / 2));
+    }
+
+    function drawRoomPlan() {
+      const geometry = getRoomGeometry();
+      const wcm = geometry.room_width_cm;
+      const hcm = geometry.room_height_cm;
+      if (!(wcm > 0) || !(hcm > 0)) {
+        return;
+      }
+
+      roomCtx.clearRect(0, 0, roomCanvas.width, roomCanvas.height);
+      roomCtx.fillStyle = '#f5f7fb';
+      roomCtx.fillRect(0, 0, roomCanvas.width, roomCanvas.height);
+      roomCtx.fillStyle = '#111';
+      roomCtx.font = '13px Segoe UI';
+
+      const maxW = 640;
+      const maxH = 360;
+      const scale = Math.min(maxW / wcm, maxH / hcm);
+      const rw = wcm * scale;
+      const rh = hcm * scale;
+      const x = 180 + ((maxW - rw) / 2);
+      const y = 120 + ((maxH - rh) / 2);
+
+      const r = Math.min((geometry.corner_radius_cm || 0) * scale, Math.min(rw, rh) / 2);
+      roomCtx.fillStyle = '#dde5f0';
+      roomCtx.strokeStyle = '#111';
+      roomCtx.lineWidth = 2;
+      roundedRectPath(roomCtx, x, y, rw, rh, r);
+      roomCtx.fill();
+      roomCtx.stroke();
+
+      if (geometry.cutout_side !== 'none' && geometry.cutout_width_cm > 0 && geometry.cutout_depth_cm > 0) {
+        const cw = geometry.cutout_width_cm * scale;
+        const cd = geometry.cutout_depth_cm * scale;
+        roomCtx.fillStyle = '#f5f7fb';
+        roomCtx.strokeStyle = '#111';
+        roomCtx.lineWidth = 2;
+        if (geometry.cutout_side === 'top' || geometry.cutout_side === 'bottom') {
+          const cx = x + (rw / 2) - (cw / 2);
+          const cy = geometry.cutout_side === 'top' ? y : y + rh - cd;
+          roomCtx.fillRect(cx, cy, cw, cd);
+          roomCtx.strokeRect(cx, cy, cw, cd);
+        } else {
+          const cy = y + (rh / 2) - (cw / 2);
+          const cx = geometry.cutout_side === 'left' ? x : x + rw - cd;
+          roomCtx.fillRect(cx, cy, cd, cw);
+          roomCtx.strokeRect(cx, cy, cd, cw);
+        }
+      }
+
+      drawDimHorizontal(x, x + rw, y - 36, y, `L = ${Math.round(wcm)} cm`);
+      drawDimVertical(x - 42, y, y + rh, x, `B = ${Math.round(hcm)} cm`);
+      roomCtx.fillStyle = '#111';
+      roomCtx.fillText(`R = ${Math.round(geometry.corner_radius_cm)} cm`, x, y + rh + 24);
+      if (geometry.cutout_side !== 'none') {
+        roomCtx.fillText(
+          `Aussparung: ${geometry.cutout_side.toUpperCase()} | Breite=${Math.round(geometry.cutout_width_cm)} cm | Tiefe=${Math.round(geometry.cutout_depth_cm)} cm`,
+          x,
+          y + rh + 44
+        );
+      }
+      roomCtx.fillText('DIN-ähnliche Vermaßung (schematisch, nicht normgeprüft)', x, y + rh + 64);
+    }
 
     function setStatus(text) {
       statusEl.textContent = text;
@@ -199,18 +355,25 @@
 
     document.getElementById('refreshBtn').addEventListener('click', refresh);
     document.getElementById('period').addEventListener('change', refresh);
+    ['roomWidth', 'roomHeight', 'cornerRadius', 'cutoutSide', 'cutoutWidth', 'cutoutDepth'].forEach((id) => {
+      document.getElementById(id).addEventListener('input', drawRoomPlan);
+      document.getElementById(id).addEventListener('change', drawRoomPlan);
+    });
 
     document.getElementById('exportBtn').addEventListener('click', async () => {
       const room_name = document.getElementById('roomName').value.trim() || 'Unbekanntes_Zimmer';
-      const room_width_cm = Number(document.getElementById('roomWidth').value);
-      const room_height_cm = Number(document.getElementById('roomHeight').value);
+      const geometry = getRoomGeometry();
       const period = document.getElementById('period').value;
 
       try {
         const data = await call('/api/export-jpg', 'POST', {
           room_name,
-          room_width_cm,
-          room_height_cm,
+          room_width_cm: geometry.room_width_cm,
+          room_height_cm: geometry.room_height_cm,
+          corner_radius_cm: geometry.corner_radius_cm,
+          cutout_side: geometry.cutout_side,
+          cutout_width_cm: geometry.cutout_width_cm,
+          cutout_depth_cm: geometry.cutout_depth_cm,
           period,
         });
         if (data.ok) {
@@ -236,6 +399,7 @@
       window.location.href = lastDownloadUrl;
     });
 
+    drawRoomPlan();
     refresh();
   </script>
 </body>
