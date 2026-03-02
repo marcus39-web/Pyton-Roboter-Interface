@@ -565,7 +565,7 @@ MIT License - Frei verwendbar für Bildungszwecke
 - 🐙 GitHub: [marcus39-web](https://github.com/marcus39-web)
 - 🎓 Schulprojekt: BrainBot AI OOP Interface
 - 📅 Datum: 02 März 2026
-- ⭐ Version: 1.0.0 zu ⭐ Version: 1.0.1
+- ⭐ Version: 1.0.1
 
 ---
 
