@@ -100,6 +100,32 @@ python test_server.py
 python main.py
 ```
 
+### 📱 Web-Steuerung (Maus + iPhone Touch + Tastatur)
+
+Die Datei `web_control_server.py` stellt eine lokale Steuer-Webseite bereit.
+
+**Terminal 1 - Mock-Server:**
+
+```bash
+python test_server.py
+```
+
+**Terminal 2 - Web-Steuerung starten:**
+
+```bash
+python web_control_server.py --host 0.0.0.0 --web-port 8080 --robot-ip 127.0.0.1 --robot-port 5000
+```
+
+**Steuerung öffnen:**
+
+- PC: `http://127.0.0.1:8080`
+- iPhone (gleiches WLAN): `http://<PC-IP>:8080`
+
+**Eingaben:**
+
+- Touch/Maus-Buttons: Vor, Links, Rechts, Zurück, Start, Stop
+- Tastatur: `W/A/S/D`, `E` = Start, `Leertaste` = Stop, `Q` = Disconnect
+
 ### 🧠 Simulation & Lernmodus (ohne Roboter)
 
 `main.py` nutzt Testdaten aus `simulation_data.json`:
