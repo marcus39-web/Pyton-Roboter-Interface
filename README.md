@@ -545,3 +545,370 @@ Haben Sie eigene Ideen? 💡
 ---
 
 **⭐ Wenn Ihnen dieses Projekt gefällt, geben Sie ihm einen Star auf GitHub!**
+
+## Heartbeat-System 💓
+
+### Warum Heartbeat wichtig ist
+
+**Problem bei WLAN-Verbindungen:**
+
+- PC sitzt im 2. Stock, Roboter im Erdgeschoss
+- WLAN kann im Treppenhaus oder durch Wände abbrechen
+- **Ohne Heartbeat:** Roboter bemerkt Disconnect nicht → läuft unkontrolliert weiter! ⚠️
+- **Mit Heartbeat:** Roboter stoppt sofort bei Signal-Ausfall
+
+**Besonders wichtig für:**
+
+- FEZ Bit / SITCore Hardware
+- WLAN-gesteuerte Roboter
+- Große Entfernungen zwischen PC und Roboter
+- Sicherheitskritische Anwendungen
+
+### Heartbeat Funktionsweise
+
+```python
+# Automatisches Lebenszeichen-System
+
+┌─────────────────────────────────────┐
+│  PC (2. Stock)                      │
+│  - Hauptprogramm läuft              │
+│  - Heartbeat-Thread läuft parallel  │
+└─────────────────────────────────────┘
+           ↓ Alle 2 Sekunden ↓
+        "HB" Signal (2 Bytes)
+           ↓ über WLAN ↓
+┌─────────────────────────────────────┐
+│  Roboter (Erdgeschoss)              │
+│  - Wartet auf Heartbeat             │
+│  - Bei Timeout: STOP                │
+└─────────────────────────────────────┘
+```
+
+**Ablauf:**
+
+1. PC und Roboter verbunden
+2. `start_heartbeat()` gestartet
+3. Jede Sekunde: PC sendet "HB"
+4. Roboter empfängt "HB" → läuft weiter
+5. WLAN-Abbruch → kein "HB" für 5 Sekunden
+6. Roboter-Timeout → AUTOMATISCHER STOP ⚠️
+7. Programmierer drückt NICHT rechtzeitig "STOP"
+8. **Roboter stoppt trotzdem!** ✅ SICHERHEIT
+
+### Heartbeat Verwendung
+
+#### Einfaches Beispiel
+
+```python
+from basis_class import BrainBotRemote
+import time
+
+# Roboter-Instanz mit Heartbeat-Intervall erstellen
+robot = BrainBotRemote(
+    robot_ip="192.168.1.100",
+    port=5000,
+    heartbeat_interval=2.0  # Alle 2 Sekunden
+)
+
+# Verbindung herstellen
+if robot.connect():
+    # ⭐ WICHTIG: Heartbeat starten!
+    robot.start_heartbeat()
+
+    try:
+        # Befehle senden (Heartbeat läuft im Hintergrund)
+        robot.send_command("FORWARD")
+        time.sleep(3)
+
+        robot.send_command("TURN_LEFT")
+        time.sleep(2)
+
+        robot.send_command("STOP")
+
+    finally:
+        # Heartbeat immer stoppen (auch bei Fehlern!)
+        robot.stop_heartbeat()
+        robot.disconnect()
+```
+
+#### Mit Exception-Handling
+
+```python
+import time
+from basis_class import BrainBotRemote
+
+try:
+    robot = BrainBotRemote("192.168.1.100", port=5000, heartbeat_interval=2.0)
+
+    if not robot.connect():
+        raise ConnectionError("Roboter nicht erreichbar")
+
+    # Heartbeat starten
+    if not robot.start_heartbeat():
+        raise RuntimeError("Heartbeat konnte nicht gestartet werden")
+
+    # Programmlogik hier...
+    robot.send_command("FORWARD")
+    time.sleep(5)
+    robot.send_command("STOP")
+
+except Exception as e:
+    print(f"Fehler: {e}")
+
+finally:
+    # Sauberes Herunterfahren
+    robot.stop_heartbeat()
+    robot.disconnect()
+```
+
+#### Mit verschiedenen Heartbeat-Intervallen
+
+```python
+# Schnelles Heartbeat (für instabile WLAN-Verbindungen)
+robot_fast = BrainBotRemote(
+    robot_ip="192.168.1.100",
+    heartbeat_interval=1.0  # Jede Sekunde
+)
+
+# Normales Heartbeat (empfohlen)
+robot_normal = BrainBotRemote(
+    robot_ip="192.168.1.100",
+    heartbeat_interval=2.0  # Alle 2 Sekunden
+)
+
+# Seltenes Heartbeat (für sehr stabile Verbindungen)
+robot_slow = BrainBotRemote(
+    robot_ip="192.168.1.100",
+    heartbeat_interval=5.0  # Alle 5 Sekunden
+)
+```
+
+### Heartbeat Konfiguration
+
+#### Empfohlene Werte
+
+| Szenario              | Intervall | Grund                    |
+| --------------------- | --------- | ------------------------ |
+| 🔴 Instabile WLAN     | 1.0s      | Schnelle Erkennung       |
+| 🟡 Normale Nutzung    | 2.0s      | **Standard (empfohlen)** |
+| 🟢 Stabile Verbindung | 5.0s      | Weniger Netzwerklast     |
+| 🏠 Smart-Home         | 3.0s      | Balanciert               |
+| 🚗 Mobile Nutzung     | 1.5s      | Höhere Frequenz          |
+
+#### Hardware-spezifische Einstellungen
+
+**FEZ Bit / SITCore:**
+
+```python
+# Optimalste Einstellung für FEZ Bit
+robot = BrainBotRemote(
+    robot_ip="192.168.1.100",
+    port=5000,
+    heartbeat_interval=2.0  # 2 Sekunden
+)
+robot.connect()
+robot.start_heartbeat()
+```
+
+**Arduino-basierte Roboter:**
+
+```python
+# Arduino kann schnelle Signale verarbeiten
+robot = BrainBotRemote(
+    robot_ip="192.168.1.100",
+    heartbeat_interval=1.0  # 1 Sekunde für schnellere Reaktion
+)
+```
+
+**Raspberry Pi Roboter:**
+
+```python
+# Raspberry Pi benötigt mehr Zeit für Verarbeitung
+robot = BrainBotRemote(
+    robot_ip="192.168.1.100",
+    heartbeat_interval=3.0  # 3 Sekunden
+)
+```
+
+### Heartbeat Log-Ausgabe
+
+**Logfile-Beispiel (`robot_log.txt`):**
+
+```
+[2026-03-02 14:30:15] [CONNECT] Verbunden mit 192.168.1.100:5000
+[2026-03-02 14:30:16] [HEARTBEAT] Thread gestartet (Intervall: 2.0s)
+[2026-03-02 14:30:16] [HEARTBEAT] Lebenszeichen gesendet (HB)
+[2026-03-02 14:30:18] [HEARTBEAT] Lebenszeichen gesendet (HB)
+[2026-03-02 14:30:18] [COMMAND] Befehl gesendet: FORWARD
+[2026-03-02 14:30:20] [HEARTBEAT] Lebenszeichen gesendet (HB)
+[2026-03-02 14:30:22] [HEARTBEAT] Lebenszeichen gesendet (HB)
+[2026-03-02 14:30:24] [HEARTBEAT] Lebenszeichen gesendet (HB)
+[2026-03-02 14:30:24] [COMMAND] Befehl gesendet: STOP
+[2026-03-02 14:30:26] [HEARTBEAT] Gestoppt
+[2026-03-02 14:30:26] [DISCONNECT] Verbindung getrennt
+```
+
+**Fehler-Beispiel:**
+
+```
+[2026-03-02 14:35:10] [HEARTBEAT] Thread gestartet (Intervall: 2.0s)
+[2026-03-02 14:35:12] [HEARTBEAT] Lebenszeichen gesendet (HB)
+[2026-03-02 14:35:14] [HEARTBEAT] Lebenszeichen gesendet (HB)
+[2026-03-02 14:35:16] [ERROR] Heartbeat-Fehler: [Errno 10054] Connection reset by peer
+[2026-03-02 14:35:16] [HEARTBEAT] Thread gestoppt
+```
+
+### Heartbeat Thread-Sicherheit
+
+**Thread-Konzept:**
+
+```python
+┌─ Hauptprogramm ────────────────────┐
+│                                    │
+│  robot.start_heartbeat()           │
+│  ↓                                 │
+│  ┌─ Heartbeat-Thread ─────┐       │
+│  │                        │       │
+│  │ Schleife:              │       │
+│  │ - Warte 2 Sekunden     │       │
+│  │ - Sende "HB"           │       │
+│  │ - Log Eintrag          │       │
+│  │ - Prüfe heartbeat_active
+│  │ (läuft parallel!)      │       │
+│  └────────────────────────┘       │
+│                                    │
+│  robot.send_command("FORWARD")    │
+│  (blockiert NICHT auf Heartbeat)  │
+│                                    │
+│  robot.stop_heartbeat()           │
+│  (wahtet auf Thread-Ende)         │
+│                                    │
+└────────────────────────────────────┘
+```
+
+**Wichtige Eigenschaften:**
+
+- ✅ **Non-Blocking:** Hauptprogramm läuft weiter
+- ✅ **Thread-Safe:** Nutzt `threading.Thread`
+- ✅ **Daemon-Mode:** Wird mit Hauptprogramm beendet
+- ✅ **Sauber beendbar:** Mit `stop_heartbeat()`
+
+### Troubleshooting Heartbeat
+
+#### Problem: "Heartbeat läuft bereits!"
+
+```python
+# ❌ FALSCH: Zweimal starten
+robot.start_heartbeat()
+robot.start_heartbeat()  # Error!
+
+# ✅ RICHTIG: Nur einmal starten
+robot.start_heartbeat()
+```
+
+#### Problem: Heartbeat stoppt sofort
+
+```python
+# ❌ FALSCH: Disconnect vor stop_heartbeat
+robot.start_heartbeat()
+robot.disconnect()  # Socket wird geschlossen!
+
+# ✅ RICHTIG: Zuerst Heartbeat stoppen
+robot.start_heartbeat()
+robot.stop_heartbeat()  # Sauber beenden
+robot.disconnect()
+```
+
+#### Problem: Roboter reagiert langsam auf Heartbeat-Timeout
+
+```python
+# Heartbeat-Intervall verkürzen
+robot = BrainBotRemote(
+    robot_ip="192.168.1.100",
+    heartbeat_interval=1.0  # Schneller! (statt 2.0)
+)
+robot.connect()
+robot.start_heartbeat()
+```
+
+#### Problem: Zu viel Netzwerk-Traffic
+
+```python
+# Heartbeat-Intervall verlängern
+robot = BrainBotRemote(
+    robot_ip="192.168.1.100",
+    heartbeat_interval=5.0  # Weniger Traffic (statt 2.0)
+)
+robot.connect()
+robot.start_heartbeat()
+```
+
+### Best Practice Checkliste ✅
+
+```python
+# ✅ MUSTER-IMPLEMENTIERUNG
+
+from basis_class import BrainBotRemote
+import time
+
+def safe_robot_control():
+    """Sichere Roboter-Steuerung mit Heartbeat"""
+    robot = None
+
+    try:
+        # 1. Instanz erstellen
+        robot = BrainBotRemote(
+            robot_ip="192.168.1.100",
+            heartbeat_interval=2.0
+        )
+
+        # 2. Verbindung prüfen
+        if not robot.connect():
+            raise ConnectionError("Roboter nicht erreichbar")
+
+        # 3. Heartbeat aktivieren
+        if not robot.start_heartbeat():
+            raise RuntimeError("Heartbeat-Fehler")
+
+        # 4. Befehle senden
+        robot.send_command("FORWARD")
+        time.sleep(2)
+        robot.send_command("STOP")
+
+    except Exception as e:
+        print(f"❌ Fehler: {e}")
+
+    finally:
+        # 5. Sauberes Herunterfahren (IMMER!)
+        if robot:
+            if robot.heartbeat_active:
+                robot.stop_heartbeat()
+            robot.disconnect()
+
+# Ausführen
+if __name__ == "__main__":
+    safe_robot_control()
+```
+
+### Performance & Netzwerk
+
+**Heartbeat-Datenvolumen:**
+
+```
+Heartbeat-Größe:  2 Bytes ("HB")
+Intervall:        2 Sekunden
+Häufigkeit:       30 pro Minute
+Datenvolumen:     60 Bytes/Minute = 3.6 KB/Stunde
+
+→ Vernachlässigbar! Kein Performance-Problem
+```
+
+**CPU-Auslastung:**
+
+```
+Heartbeat-Thread:  < 0.1% CPU
+sleep(0.1):        Läuft nur 100ms pro Sekunde
+Gesamtauslastung:  Unmerklich klein
+
+→ Kein Problem auf schwacher Hardware (Raspberry Pi, Arduino)
+```
