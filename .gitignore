@@ -22,3 +22,6 @@ Thumbs.db
 # Logs
 *.log
 robot_log.txt
+
+# Runtime mapping snapshots
+map_snapshots/

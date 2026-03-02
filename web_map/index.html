@@ -30,6 +30,14 @@
       <button class="danger" id="resetBtn">RESET</button>
     </div>
 
+    <div class="toolbar">
+      <input id="snapshotName" type="text" placeholder="Snapshot-Name (optional)" style="min-height:44px; border-radius:10px; border:1px solid #2c3138; background:#161a1f; color:#f5f5f5; padding:0 10px; min-width:220px;" />
+      <button class="primary" id="saveBtn">SNAPSHOT SPEICHERN</button>
+      <select id="snapshotSelect" style="min-height:44px; border-radius:10px; border:1px solid #2c3138; background:#161a1f; color:#f5f5f5; padding:0 10px; min-width:220px;"></select>
+      <button class="muted" id="loadBtn">SNAPSHOT LADEN</button>
+      <button class="muted" id="refreshSnapshotsBtn">LISTE AKTUALISIEREN</button>
+    </div>
+
     <canvas id="mapCanvas" width="900" height="600"></canvas>
 
     <p class="hint">
@@ -41,6 +49,7 @@
     const statusEl = document.getElementById('status');
     const canvas = document.getElementById('mapCanvas');
     const ctx = canvas.getContext('2d');
+    const snapshotSelect = document.getElementById('snapshotSelect');
     let latestState = null;
 
     // Einheitlicher API-Aufruf für den lokalen Map-Server.
@@ -55,6 +64,36 @@
 
     function setStatus(text) {
       statusEl.textContent = text;
+    }
+
+    function setSnapshots(snapshots) {
+      // Snapshot-Auswahlliste im UI aktualisieren.
+      snapshotSelect.innerHTML = '';
+      if (!snapshots || snapshots.length === 0) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Keine Snapshots vorhanden';
+        snapshotSelect.appendChild(option);
+        return;
+      }
+
+      for (const item of snapshots) {
+        const option = document.createElement('option');
+        option.value = item.filename;
+        option.textContent = item.filename;
+        snapshotSelect.appendChild(option);
+      }
+    }
+
+    async function refreshSnapshots() {
+      try {
+        const data = await call('/api/snapshots');
+        if (data.ok) {
+          setSnapshots(data.snapshots || []);
+        }
+      } catch {
+        setStatus('Status: Fehler beim Abrufen der Snapshot-Liste');
+      }
     }
 
     function drawGrid(width, height, step = 50) {
@@ -163,10 +202,38 @@
     document.getElementById('resetBtn').addEventListener('click', async () => {
       await call('/api/reset', 'POST', {});
       await refreshState();
+      await refreshSnapshots();
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      // Aktuellen Kartenstand als Snapshot speichern.
+      const name = document.getElementById('snapshotName').value.trim();
+      const data = await call('/api/save', 'POST', { name });
+      setStatus(`Status: ${data.message}`);
+      setSnapshots(data.snapshots || []);
+    });
+
+    document.getElementById('loadBtn').addEventListener('click', async () => {
+      // Gewählten Snapshot laden und Karte neu zeichnen.
+      const filename = snapshotSelect.value;
+      if (!filename) {
+        setStatus('Status: Kein Snapshot ausgewählt');
+        return;
+      }
+
+      const data = await call('/api/load', 'POST', { filename });
+      setStatus(`Status: ${data.message}`);
+      setSnapshots(data.snapshots || []);
+      await refreshState();
+    });
+
+    document.getElementById('refreshSnapshotsBtn').addEventListener('click', async () => {
+      await refreshSnapshots();
     });
 
     // Laufende Aktualisierung für Live-Mapping.
     setInterval(refreshState, 350);
+    refreshSnapshots();
     refreshState();
   </script>
 </body>

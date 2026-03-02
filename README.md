@@ -161,6 +161,7 @@ python map_mvp_server.py --host 0.0.0.0 --web-port 8090
 - Live-Karte mit Grid + Hindernissen
 - 3 simulierte Roboter inkl. Trails
 - Start / Pause / Ein Schritt / Reset
+- Snapshot-Speicherung als JSON (Speichern/Laden/Liste)
 - Vorbereitet für spätere echte Positionsdaten
 
 `main.py` nutzt Testdaten aus `simulation_data.json`:

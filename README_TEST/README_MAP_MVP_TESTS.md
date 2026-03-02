@@ -7,6 +7,7 @@ Diese Anleitung testet das lokale Kartierungs-MVP ohne echten Roboter.
 - Kartenansicht im Browser prüfen
 - Mehrere virtuelle Roboter sichtbar machen
 - Start/Pause/Step/Reset validieren
+- Snapshot-Speicherung und Laden validieren
 
 ## Start
 
@@ -26,12 +27,15 @@ Browser öffnen:
 3. Mit `PAUSE SIM` bleibt die Karte stehen.
 4. Mit `EIN SCHRITT` bewegt sich die Simulation genau um einen Tick.
 5. Mit `RESET` startet die Simulation wieder am Anfang.
+6. Mit `SNAPSHOT SPEICHERN` einen Stand sichern.
+7. Snapshot aus der Liste wählen und mit `SNAPSHOT LADEN` wiederherstellen.
 
 ## Erwartetes Ergebnis
 
 - Hindernisse bleiben statisch.
 - Trails wachsen während `running=true`.
 - Status zeigt Tick und Running-Status.
+- Snapshots liegen als JSON-Dateien im Ordner `map_snapshots/`.
 
 ## Troubleshooting
 
