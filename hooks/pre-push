@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+set -eu
+
+echo "[pre-push] Starte Qualitätschecks..."
+
+# Python-Interpreter auflösen (Windows + plattformneutral)
+if [ -x "/c/Users/marcu/AppData/Local/Programs/Python/Python312/python.exe" ]; then
+  PY_CMD='"/c/Users/marcu/AppData/Local/Programs/Python/Python312/python.exe"'
+elif command -v py >/dev/null 2>&1 && py -3 --version >/dev/null 2>&1; then
+  PY_CMD="py -3"
+elif command -v python3 >/dev/null 2>&1 && python3 --version >/dev/null 2>&1; then
+  PY_CMD="python3"
+elif command -v python >/dev/null 2>&1 && python --version >/dev/null 2>&1; then
+  PY_CMD="python"
+else
+  echo "[pre-push] FEHLER: Kein nutzbarer Python-Interpreter gefunden."
+  exit 1
+fi
+
+# Port 5000 muss frei sein, sonst kann test_connect_failure falsch positiv/negativ werden.
+sh -c "$PY_CMD - <<'PY'
+import socket
+import sys
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.settimeout(0.3)
+try:
+    is_open = sock.connect_ex((\"127.0.0.1\", 5000)) == 0
+finally:
+    sock.close()
+if is_open:
+    print('[pre-push] FEHLER: Port 5000 ist belegt (Mock/Web-Server läuft).')
+    print('[pre-push] Bitte Server stoppen und Push erneut ausführen.')
+    sys.exit(1)
+PY"
+
+# Syntax-Check für zentrale Start-/Steuerdateien.
+sh -c "$PY_CMD -m py_compile main.py web_control_server.py basis_class.py test_server.py"
+
+# Voller Testlauf (8/8), sobald Port 5000 frei ist.
+sh -c "$PY_CMD -m pytest tests/ -v"
+
+echo "[pre-push] Alle Checks erfolgreich. Push wird fortgesetzt."

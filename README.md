@@ -580,6 +580,14 @@ pytest tests/ --cov=BrainBot_AI --cov-report=html
 git status
 git diff
 
+# Hook einmalig pro Clone aktivieren
+git config core.hooksPath hooks
+
+# Beim Push werden automatisch geprüft:
+# - Port 5000 frei
+# - Syntax (py_compile)
+# - Tests (pytest)
+
 # Commits mit aussagekräftigen Messages
 git commit -m "Feature: Heartbeat-System implementiert"
 
