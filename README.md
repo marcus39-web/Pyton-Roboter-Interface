@@ -126,6 +126,8 @@ python web_control_server.py --host 0.0.0.0 --web-port 8080 --robot-ip 127.0.0.1
 - Touch/Maus-Buttons: Vor, Links, Rechts, Zurück, Start, Stop
 - Tastatur: `W/A/S/D`, `E` = Start, `Leertaste` = Stop, `Q` = Disconnect
 
+📖 **Detaillierte Web-Tests:** Siehe `README_TEST/README_WEB_STEUERUNG_TESTS.md`
+
 ### 🧠 Simulation & Lernmodus (ohne Roboter)
 
 `main.py` nutzt Testdaten aus `simulation_data.json`:
