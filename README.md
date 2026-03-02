@@ -123,8 +123,9 @@ python web_control_server.py --host 0.0.0.0 --web-port 8080 --robot-ip 127.0.0.1
 
 **Eingaben:**
 
+- Touch/Maus-Bewegung: **Gedrückt halten = fahren, Loslassen = STOP**
 - Touch/Maus-Buttons: Vor, Links, Rechts, Zurück, Start, Stop
-- Tastatur: `W/A/S/D`, `E` = Start, `Leertaste` = Stop, `Q` = Disconnect
+- Tastatur: `W/A/S/D` halten = Bewegung, loslassen = Stop, `E` = Start, `Leertaste` = Stop, `Q` = Disconnect
 
 📖 **Detaillierte Web-Tests:** Siehe `README_TEST/README_WEB_STEUERUNG_TESTS.md`
 📖 **Keyboard-Only Tests:** Siehe `README_TEST/README_KEYBOARD_TESTS.md`

@@ -53,6 +53,11 @@ ipconfig
 
 ## Funktions-Tests
 
+Wichtig für die aktuelle Steuerlogik:
+
+- Bewegungsbefehle sind als **Hold-Steuerung** umgesetzt.
+- **Gedrückt halten = Bewegung aktiv**, **Loslassen = automatisches STOP**.
+
 ### Test 1: Verbindung
 
 1. In der Weboberfläche `START` drücken.
@@ -61,8 +66,9 @@ ipconfig
 
 ### Test 2: Richtungsbefehle
 
-1. `VOR`, `LINKS`, `RECHTS`, `ZURÜCK` drücken.
-2. Mock-Server zeigt die gesendeten Befehle (`FORWARD`, `TURN_LEFT_90`, `TURN_RIGHT_90`, `BACKWARD`).
+1. `VOR`, `LINKS`, `RECHTS`, `ZURÜCK` jeweils kurz **gedrückt halten**.
+2. Beim Loslassen muss jeweils zusätzlich ein `STOP` folgen.
+3. Mock-Server zeigt die Befehlsfolge (`FORWARD`/`TURN_*`/`BACKWARD` und danach `STOP`).
 
 ### Test 3: Not-Stopp
 
@@ -78,6 +84,11 @@ ipconfig
 - `E` = Start (Connect)
 - `Leertaste` = Stop
 - `Q` = Disconnect
+
+Zusatzprüfung:
+
+- `W`, `A`, `S`, `D` halten = Bewegung läuft
+- Taste loslassen = `STOP` wird gesendet
 
 ### Test 5: Disconnect
 

@@ -9,7 +9,7 @@
     body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #111; color: #f5f5f5; }
     .wrap { max-width: 560px; margin: 0 auto; padding: 16px; }
     .row { display: flex; gap: 10px; margin-bottom: 10px; }
-    button { flex: 1; min-height: 64px; border: 0; border-radius: 12px; font-size: 18px; font-weight: 700; }
+    button { flex: 1; min-height: 64px; border: 0; border-radius: 12px; font-size: 18px; font-weight: 700; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
     .primary { background: #2a7fff; color: #fff; }
     .danger { background: #d32f2f; color: #fff; }
     .muted { background: #2e2e2e; color: #fff; }
@@ -45,7 +45,7 @@
     </div>
 
     <p class="hint">
-      Tastatur: W/A/S/D = Vor/Links/Zurück/Rechts, E = Start, Leertaste = Stop, Q = Disconnect.
+      Hold-Steuerung: Gedrückt halten = Bewegung, Loslassen = STOP. Tastatur: W/A/S/D, E, Leertaste, Q.
     </p>
   </div>
 
@@ -82,43 +82,123 @@
       setStatus(`Status: ${data.message}`);
     }
 
+    // Wiederholtes Senden hält die Bewegung stabil aktiv, bis losgelassen wird.
+    const repeatIntervalMs = 700;
+    let activeHoldCommand = null;
+    let holdTimer = null;
+
+    function startHoldCommand(command) {
+      if (activeHoldCommand === command) {
+        return;
+      }
+
+      stopHoldCommand(false);
+      activeHoldCommand = command;
+      sendCommand(command);
+
+      holdTimer = window.setInterval(() => {
+        if (activeHoldCommand === command) {
+          sendCommand(command);
+        }
+      }, repeatIntervalMs);
+    }
+
+    function stopHoldCommand(sendStop = true) {
+      if (!activeHoldCommand) {
+        return;
+      }
+
+      activeHoldCommand = null;
+      if (holdTimer !== null) {
+        window.clearInterval(holdTimer);
+        holdTimer = null;
+      }
+
+      // Sicherheitsverhalten: Beim Loslassen immer STOP.
+      if (sendStop) {
+        sendCommand('STOP');
+      }
+    }
+
     // Primäre Steuer-Buttons (Touch + Maus).
     document.getElementById('connectBtn').addEventListener('click', connect);
     document.getElementById('disconnectBtn').addEventListener('click', disconnect);
-    document.getElementById('stopBtn').addEventListener('click', () => sendCommand('STOP'));
+    document.getElementById('stopBtn').addEventListener('click', () => {
+      stopHoldCommand(false);
+      sendCommand('STOP');
+    });
 
     document.querySelectorAll('.cmd').forEach(btn => {
-      btn.addEventListener('click', () => sendCommand(btn.dataset.cmd));
+      const command = btn.dataset.cmd;
+
+      // STOP/HALT bleibt ein einfacher Klick.
+      if (command === 'STOP') {
+        btn.addEventListener('click', () => {
+          stopHoldCommand(false);
+          sendCommand('STOP');
+        });
+        return;
+      }
+
+      // Pointer-Events decken Maus + Touch ab (iPhone/Android/Desktop).
+      btn.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        startHoldCommand(command);
+      });
+      btn.addEventListener('pointerup', () => stopHoldCommand(true));
+      btn.addEventListener('pointercancel', () => stopHoldCommand(true));
+      btn.addEventListener('pointerleave', () => stopHoldCommand(true));
     });
 
     // Tastatur-Mapping für Desktop-Steuerung.
-    const keyMap = {
+    const holdKeyMap = {
       'w': 'FORWARD',
       'a': 'TURN_LEFT_90',
       's': 'BACKWARD',
-      'd': 'TURN_RIGHT_90',
-      ' ': 'STOP'
+      'd': 'TURN_RIGHT_90'
     };
 
-    // Start/Disconnect auf E/Q, Bewegungen auf W/A/S/D + Space.
+    // Start/Disconnect auf E/Q, Bewegungen als Hold auf W/A/S/D.
     window.addEventListener('keydown', (event) => {
       const key = event.key.toLowerCase();
       if (key === 'e') {
         event.preventDefault();
+        stopHoldCommand(false);
         connect();
         return;
       }
       if (key === 'q') {
         event.preventDefault();
+        stopHoldCommand(false);
         disconnect();
         return;
       }
+      if (key === ' ') {
+        event.preventDefault();
+        stopHoldCommand(false);
+        sendCommand('STOP');
+        return;
+      }
 
-      const cmd = keyMap[key];
+      const cmd = holdKeyMap[key];
       if (!cmd) return;
       event.preventDefault();
-      sendCommand(cmd);
+      if (!event.repeat) {
+        startHoldCommand(cmd);
+      }
     });
+
+    // Bei Taste loslassen wird die Bewegung sicher beendet.
+    window.addEventListener('keyup', (event) => {
+      const key = event.key.toLowerCase();
+      if (holdKeyMap[key]) {
+        event.preventDefault();
+        stopHoldCommand(true);
+      }
+    });
+
+    // Sicherheitsnetz, falls Tab/Fenster den Fokus verliert.
+    window.addEventListener('blur', () => stopHoldCommand(true));
   </script>
 </body>
 </html>
