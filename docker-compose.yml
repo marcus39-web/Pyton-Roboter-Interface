@@ -4,7 +4,7 @@ services:
     container_name: brainbot-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD:-yes}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_ROOT_HOST: ${MYSQL_ROOT_HOST:-%}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-brainbot_ai}
     ports:
