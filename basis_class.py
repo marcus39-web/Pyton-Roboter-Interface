@@ -1,3 +1,8 @@
+# HINWEIS:
+# Diese Klasse bildet die Basis für die Robotersteuerung.
+# In der aktuellen Version ist sie für Simulation und spätere Hardware-Erweiterung vorbereitet.
+# Methoden können für echte Roboter überschrieben oder erweitert werden.
+
 """
 BrainBot Remote Control Module
 ===============================

@@ -1,413 +1,663 @@
 <!doctype html>
 <html lang="de">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>BrainBot Kategorisierung</title>
-  <style>
-    :root { color-scheme: dark; }
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #111; color: #f5f5f5; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    .field label { font-size: 12px; opacity: .85; }
-    input, select, button { min-height: 40px; border-radius: 10px; border: 1px solid #2c3138; background: #161a1f; color: #f5f5f5; padding: 0 10px; }
-    button { cursor: pointer; font-weight: 700; }
-    .primary { background: #2a7fff; border-color: #2a7fff; }
-    .status { padding: 10px; border-radius: 10px; background: #1d1d1d; margin-bottom: 12px; font-size: 14px; }
-    .cards { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 10px; margin: 12px 0; }
-    .card { border: 1px solid #2c3138; border-radius: 10px; padding: 10px; background: #161a1f; }
-    .card .num { font-size: 22px; font-weight: 700; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border-bottom: 1px solid #2c3138; text-align: left; padding: 8px 6px; font-size: 13px; }
-    .section { border: 1px solid #2c3138; border-radius: 12px; padding: 12px; margin-top: 14px; background: #14181d; }
-    .room-canvas { width: 100%; max-width: 920px; border: 1px solid #2c3138; border-radius: 10px; background: #f5f7fb; }
-    .hint { font-size: 12px; opacity: .85; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <h2>📊 BrainBot Kategorisierung</h2>
-    <div id="status" class="status">Status: initialisiere...</div>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="data:," />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>BrainBot Kategorisierung</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          sans-serif;
+        background: #111;
+        color: #f5f5f5;
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 12px 0;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .field label {
+        font-size: 12px;
+        opacity: 0.85;
+      }
+      input,
+      select,
+      button {
+        min-height: 40px;
+        border-radius: 10px;
+        border: 1px solid #2c3138;
+        background: #161a1f;
+        color: #f5f5f5;
+        padding: 0 10px;
+      }
+      button {
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .primary {
+        background: #2a7fff;
+        border-color: #2a7fff;
+      }
+      .status {
+        padding: 10px;
+        border-radius: 10px;
+        background: #1d1d1d;
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(120px, 1fr));
+        gap: 10px;
+        margin: 12px 0;
+      }
+      .card {
+        border: 1px solid #2c3138;
+        border-radius: 10px;
+        padding: 10px;
+        background: #161a1f;
+      }
+      .card .num {
+        font-size: 22px;
+        font-weight: 700;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      th,
+      td {
+        border-bottom: 1px solid #2c3138;
+        text-align: left;
+        padding: 8px 6px;
+        font-size: 13px;
+      }
+      .section {
+        border: 1px solid #2c3138;
+        border-radius: 12px;
+        padding: 12px;
+        margin-top: 14px;
+        background: #14181d;
+      }
+      .room-canvas {
+        width: 100%;
+        max-width: 920px;
+        border: 1px solid #2c3138;
+        border-radius: 10px;
+        background: #f5f7fb;
+      }
+      .hint {
+        font-size: 12px;
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h2>📊 BrainBot Kategorisierung</h2>
+      <div id="status" class="status">Status: initialisiere...</div>
 
-    <div class="toolbar">
-      <div class="field">
-        <label for="roomName">Zimmername</label>
-        <input id="roomName" value="Laborraum_A" />
+      <div class="toolbar">
+        <div class="field">
+          <label for="roomName">Zimmername</label>
+          <input id="roomName" value="Laborraum_A" />
+        </div>
+        <div class="field">
+          <label for="roomWidth">Breite (cm)</label>
+          <input id="roomWidth" type="number" min="1" value="500" />
+        </div>
+        <div class="field">
+          <label for="roomHeight">Höhe (cm)</label>
+          <input id="roomHeight" type="number" min="1" value="400" />
+        </div>
+        <div class="field">
+          <label for="cornerRadius">Radius (cm)</label>
+          <input id="cornerRadius" type="number" min="0" value="0" />
+        </div>
+        <div class="field">
+          <label for="cutoutSide">Aussparung Seite</label>
+          <select id="cutoutSide">
+            <option value="none" selected>keine</option>
+            <option value="top">oben</option>
+            <option value="bottom">unten</option>
+            <option value="left">links</option>
+            <option value="right">rechts</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cutoutWidth">Aussparung Breite (cm)</label>
+          <input id="cutoutWidth" type="number" min="0" value="0" />
+        </div>
+        <div class="field">
+          <label for="cutoutDepth">Aussparung Tiefe (cm)</label>
+          <input id="cutoutDepth" type="number" min="0" value="0" />
+        </div>
+        <div class="field">
+          <label for="period">Blockansicht</label>
+          <select id="period">
+            <option value="day">Tag</option>
+            <option value="week">Woche</option>
+            <option value="month" selected>Monat</option>
+            <option value="year">Jahr</option>
+          </select>
+        </div>
+        <div class="field" style="justify-content: flex-end">
+          <label>&nbsp;</label>
+          <button id="refreshBtn" class="primary">AKTUALISIEREN</button>
+        </div>
+        <div class="field" style="justify-content: flex-end">
+          <label>&nbsp;</label>
+          <button id="exportBtn">JPG EXPORT</button>
+        </div>
+        <div class="field" style="justify-content: flex-end">
+          <label for="exportSelect">Export-Auswahl</label>
+          <select id="exportSelect" style="min-width: 220px"></select>
+        </div>
+        <div class="field" style="justify-content: flex-end">
+          <label>&nbsp;</label>
+          <button id="downloadBtn" disabled>DOWNLOAD AUSWAHL</button>
+        </div>
       </div>
-      <div class="field">
-        <label for="roomWidth">Breite (cm)</label>
-        <input id="roomWidth" type="number" min="1" value="500" />
+
+      <div id="lastExportInfo" class="status">Letzter Export: -</div>
+
+      <div class="section">
+        <h3>Raum-Draufsicht mit Vermaßung</h3>
+        <canvas
+          id="roomCanvas"
+          class="room-canvas"
+          width="920"
+          height="620"
+        ></canvas>
+        <p class="hint">
+          DIN-ähnliche Vermaßung (schematisch): Länge, Breite, Aussparung,
+          Radius.
+        </p>
       </div>
-      <div class="field">
-        <label for="roomHeight">Höhe (cm)</label>
-        <input id="roomHeight" type="number" min="1" value="400" />
+
+      <div class="cards">
+        <div class="card">
+          <div>Gesamt</div>
+          <div id="totalAll" class="num">0</div>
+        </div>
+        <div class="card">
+          <div>OBSTACLE</div>
+          <div id="totalObstacle" class="num">0</div>
+        </div>
+        <div class="card">
+          <div>CLEAR</div>
+          <div id="totalClear" class="num">0</div>
+        </div>
+        <div class="card">
+          <div>OTHER</div>
+          <div id="totalOther" class="num">0</div>
+        </div>
       </div>
-      <div class="field">
-        <label for="cornerRadius">Radius (cm)</label>
-        <input id="cornerRadius" type="number" min="0" value="0" />
+
+      <div class="section">
+        <h3>Blockübersicht</h3>
+        <div id="createdAt">Erstellt am: -</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Block</th>
+              <th>Gesamt</th>
+              <th>OBSTACLE</th>
+              <th>CLEAR</th>
+              <th>OTHER</th>
+            </tr>
+          </thead>
+          <tbody id="blocksBody"></tbody>
+        </table>
       </div>
-      <div class="field">
-        <label for="cutoutSide">Aussparung Seite</label>
-        <select id="cutoutSide">
-          <option value="none" selected>keine</option>
-          <option value="top">oben</option>
-          <option value="bottom">unten</option>
-          <option value="left">links</option>
-          <option value="right">rechts</option>
-        </select>
+
+      <div class="section">
+        <h3>Letzte Kategorisierungen</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Erstellt am</th>
+              <th>Zimmer</th>
+              <th>Distanz</th>
+              <th>Grenze</th>
+              <th>Kategorie</th>
+              <th>Kommando</th>
+            </tr>
+          </thead>
+          <tbody id="recentBody"></tbody>
+        </table>
       </div>
-      <div class="field">
-        <label for="cutoutWidth">Aussparung Breite (cm)</label>
-        <input id="cutoutWidth" type="number" min="0" value="0" />
-      </div>
-      <div class="field">
-        <label for="cutoutDepth">Aussparung Tiefe (cm)</label>
-        <input id="cutoutDepth" type="number" min="0" value="0" />
-      </div>
-      <div class="field">
-        <label for="period">Blockansicht</label>
-        <select id="period">
-          <option value="day">Tag</option>
-          <option value="week">Woche</option>
-          <option value="month" selected>Monat</option>
-          <option value="year">Jahr</option>
-        </select>
-      </div>
-      <div class="field" style="justify-content: flex-end;">
-        <label>&nbsp;</label>
-        <button id="refreshBtn" class="primary">AKTUALISIEREN</button>
-      </div>
-      <div class="field" style="justify-content: flex-end;">
-        <label>&nbsp;</label>
-        <button id="exportBtn">JPG EXPORT</button>
-      </div>
-      <div class="field" style="justify-content: flex-end;">
-        <label>&nbsp;</label>
-        <button id="downloadBtn" disabled>DOWNLOAD LETZTER JPG</button>
+
+      <div class="section">
+        <h3>Export-Historie (letzte 10 JPG)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Erstellt am</th>
+              <th>Zimmer</th>
+              <th>Block</th>
+              <th>Datei</th>
+              <th>Download</th>
+            </tr>
+          </thead>
+          <tbody id="exportsBody"></tbody>
+        </table>
       </div>
     </div>
 
-    <div id="lastExportInfo" class="status">Letzter Export: -</div>
+    <script>
+      const statusEl = document.getElementById("status");
+      const blocksBody = document.getElementById("blocksBody");
+      const recentBody = document.getElementById("recentBody");
+      const exportsBody = document.getElementById("exportsBody");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const exportSelect = document.getElementById("exportSelect");
+      const lastExportInfoEl = document.getElementById("lastExportInfo");
+      const roomCanvas = document.getElementById("roomCanvas");
+      const roomCtx = roomCanvas.getContext("2d");
+      let lastDownloadUrl = "";
+      let exportList = [];
+      let selectedDownloadUrl = "";
 
-    <div class="section">
-      <h3>Raum-Draufsicht mit Vermaßung</h3>
-      <canvas id="roomCanvas" class="room-canvas" width="920" height="620"></canvas>
-      <p class="hint">DIN-ähnliche Vermaßung (schematisch): Länge, Breite, Aussparung, Radius.</p>
-    </div>
-
-    <div class="cards">
-      <div class="card"><div>Gesamt</div><div id="totalAll" class="num">0</div></div>
-      <div class="card"><div>OBSTACLE</div><div id="totalObstacle" class="num">0</div></div>
-      <div class="card"><div>CLEAR</div><div id="totalClear" class="num">0</div></div>
-      <div class="card"><div>OTHER</div><div id="totalOther" class="num">0</div></div>
-    </div>
-
-    <div class="section">
-      <h3>Blockübersicht</h3>
-      <div id="createdAt">Erstellt am: -</div>
-      <table>
-        <thead>
-          <tr><th>Block</th><th>Gesamt</th><th>OBSTACLE</th><th>CLEAR</th><th>OTHER</th></tr>
-        </thead>
-        <tbody id="blocksBody"></tbody>
-      </table>
-    </div>
-
-    <div class="section">
-      <h3>Letzte Kategorisierungen</h3>
-      <table>
-        <thead>
-          <tr><th>Erstellt am</th><th>Zimmer</th><th>Distanz</th><th>Grenze</th><th>Kategorie</th><th>Kommando</th></tr>
-        </thead>
-        <tbody id="recentBody"></tbody>
-      </table>
-    </div>
-
-    <div class="section">
-      <h3>Export-Historie (letzte 10 JPG)</h3>
-      <table>
-        <thead>
-          <tr><th>Erstellt am</th><th>Zimmer</th><th>Block</th><th>Datei</th><th>Download</th></tr>
-        </thead>
-        <tbody id="exportsBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <script>
-    const statusEl = document.getElementById('status');
-    const blocksBody = document.getElementById('blocksBody');
-    const recentBody = document.getElementById('recentBody');
-    const exportsBody = document.getElementById('exportsBody');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const lastExportInfoEl = document.getElementById('lastExportInfo');
-    const roomCanvas = document.getElementById('roomCanvas');
-    const roomCtx = roomCanvas.getContext('2d');
-    let lastDownloadUrl = '';
-
-    function getRoomGeometry() {
-      const room_width_cm = Number(document.getElementById('roomWidth').value);
-      const room_height_cm = Number(document.getElementById('roomHeight').value);
-      const corner_radius_cm = Math.max(0, Number(document.getElementById('cornerRadius').value));
-      const cutout_side = document.getElementById('cutoutSide').value;
-      const cutout_width_cm = Math.max(0, Number(document.getElementById('cutoutWidth').value));
-      const cutout_depth_cm = Math.max(0, Number(document.getElementById('cutoutDepth').value));
-      return { room_width_cm, room_height_cm, corner_radius_cm, cutout_side, cutout_width_cm, cutout_depth_cm };
-    }
-
-    function roundedRectPath(ctx, x, y, w, h, r) {
-      const radius = Math.max(0, Math.min(r, Math.min(w, h) / 2));
-      ctx.beginPath();
-      ctx.moveTo(x + radius, y);
-      ctx.lineTo(x + w - radius, y);
-      ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-      ctx.lineTo(x + w, y + h - radius);
-      ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
-      ctx.lineTo(x + radius, y + h);
-      ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
-      ctx.lineTo(x, y + radius);
-      ctx.quadraticCurveTo(x, y, x + radius, y);
-      ctx.closePath();
-    }
-
-    function drawDimHorizontal(x1, x2, y, refY, label) {
-      roomCtx.strokeStyle = '#111';
-      roomCtx.fillStyle = '#111';
-      roomCtx.lineWidth = 1;
-      roomCtx.beginPath();
-      roomCtx.moveTo(x1, refY); roomCtx.lineTo(x1, y);
-      roomCtx.moveTo(x2, refY); roomCtx.lineTo(x2, y);
-      roomCtx.moveTo(x1, y); roomCtx.lineTo(x2, y);
-      roomCtx.stroke();
-      roomCtx.beginPath();
-      roomCtx.moveTo(x1, y); roomCtx.lineTo(x1 + 8, y - 4); roomCtx.lineTo(x1 + 8, y + 4); roomCtx.closePath();
-      roomCtx.fill();
-      roomCtx.beginPath();
-      roomCtx.moveTo(x2, y); roomCtx.lineTo(x2 - 8, y - 4); roomCtx.lineTo(x2 - 8, y + 4); roomCtx.closePath();
-      roomCtx.fill();
-      roomCtx.fillText(label, ((x1 + x2) / 2) - 35, y - 8);
-    }
-
-    function drawDimVertical(x, y1, y2, refX, label) {
-      roomCtx.strokeStyle = '#111';
-      roomCtx.fillStyle = '#111';
-      roomCtx.lineWidth = 1;
-      roomCtx.beginPath();
-      roomCtx.moveTo(refX, y1); roomCtx.lineTo(x, y1);
-      roomCtx.moveTo(refX, y2); roomCtx.lineTo(x, y2);
-      roomCtx.moveTo(x, y1); roomCtx.lineTo(x, y2);
-      roomCtx.stroke();
-      roomCtx.beginPath();
-      roomCtx.moveTo(x, y1); roomCtx.lineTo(x - 4, y1 + 8); roomCtx.lineTo(x + 4, y1 + 8); roomCtx.closePath();
-      roomCtx.fill();
-      roomCtx.beginPath();
-      roomCtx.moveTo(x, y2); roomCtx.lineTo(x - 4, y2 - 8); roomCtx.lineTo(x + 4, y2 - 8); roomCtx.closePath();
-      roomCtx.fill();
-      roomCtx.fillText(label, x - 70, ((y1 + y2) / 2));
-    }
-
-    function drawRoomPlan() {
-      const geometry = getRoomGeometry();
-      const wcm = geometry.room_width_cm;
-      const hcm = geometry.room_height_cm;
-      if (!(wcm > 0) || !(hcm > 0)) {
-        return;
+      function getRoomGeometry() {
+        const room_width_cm = Number(
+          document.getElementById("roomWidth").value,
+        );
+        const room_height_cm = Number(
+          document.getElementById("roomHeight").value,
+        );
+        const corner_radius_cm = Math.max(
+          0,
+          Number(document.getElementById("cornerRadius").value),
+        );
+        const cutout_side = document.getElementById("cutoutSide").value;
+        const cutout_width_cm = Math.max(
+          0,
+          Number(document.getElementById("cutoutWidth").value),
+        );
+        const cutout_depth_cm = Math.max(
+          0,
+          Number(document.getElementById("cutoutDepth").value),
+        );
+        return {
+          room_width_cm,
+          room_height_cm,
+          corner_radius_cm,
+          cutout_side,
+          cutout_width_cm,
+          cutout_depth_cm,
+        };
       }
 
-      roomCtx.clearRect(0, 0, roomCanvas.width, roomCanvas.height);
-      roomCtx.fillStyle = '#f5f7fb';
-      roomCtx.fillRect(0, 0, roomCanvas.width, roomCanvas.height);
-      roomCtx.fillStyle = '#111';
-      roomCtx.font = '13px Segoe UI';
-
-      const maxW = 640;
-      const maxH = 360;
-      const scale = Math.min(maxW / wcm, maxH / hcm);
-      const rw = wcm * scale;
-      const rh = hcm * scale;
-      const x = 180 + ((maxW - rw) / 2);
-      let y = 120 + ((maxH - rh) / 2);
-
-      const extraLines = geometry.cutout_side !== 'none' ? 3 : 2;
-      const footerBottom = y + rh + (24 + (extraLines * 20));
-      const maxBottom = roomCanvas.height - 14;
-      if (footerBottom > maxBottom) {
-        y = Math.max(36, y - (footerBottom - maxBottom));
+      function roundedRectPath(ctx, x, y, w, h, r) {
+        const radius = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
       }
 
-      const r = Math.min((geometry.corner_radius_cm || 0) * scale, Math.min(rw, rh) / 2);
-      roomCtx.fillStyle = '#dde5f0';
-      roomCtx.strokeStyle = '#111';
-      roomCtx.lineWidth = 2;
-      roundedRectPath(roomCtx, x, y, rw, rh, r);
-      roomCtx.fill();
-      roomCtx.stroke();
+      function drawDimHorizontal(x1, x2, y, refY, label) {
+        roomCtx.strokeStyle = "#111";
+        roomCtx.fillStyle = "#111";
+        roomCtx.lineWidth = 1;
+        roomCtx.beginPath();
+        roomCtx.moveTo(x1, refY);
+        roomCtx.lineTo(x1, y);
+        roomCtx.moveTo(x2, refY);
+        roomCtx.lineTo(x2, y);
+        roomCtx.moveTo(x1, y);
+        roomCtx.lineTo(x2, y);
+        roomCtx.stroke();
+        roomCtx.beginPath();
+        roomCtx.moveTo(x1, y);
+        roomCtx.lineTo(x1 + 8, y - 4);
+        roomCtx.lineTo(x1 + 8, y + 4);
+        roomCtx.closePath();
+        roomCtx.fill();
+        roomCtx.beginPath();
+        roomCtx.moveTo(x2, y);
+        roomCtx.lineTo(x2 - 8, y - 4);
+        roomCtx.lineTo(x2 - 8, y + 4);
+        roomCtx.closePath();
+        roomCtx.fill();
+        roomCtx.fillText(label, (x1 + x2) / 2 - 35, y - 8);
+      }
 
-      if (geometry.cutout_side !== 'none' && geometry.cutout_width_cm > 0 && geometry.cutout_depth_cm > 0) {
-        const cw = geometry.cutout_width_cm * scale;
-        const cd = geometry.cutout_depth_cm * scale;
-        roomCtx.fillStyle = '#f5f7fb';
-        roomCtx.strokeStyle = '#111';
-        roomCtx.lineWidth = 2;
-        if (geometry.cutout_side === 'top' || geometry.cutout_side === 'bottom') {
-          const cx = x + (rw / 2) - (cw / 2);
-          const cy = geometry.cutout_side === 'top' ? y : y + rh - cd;
-          roomCtx.fillRect(cx, cy, cw, cd);
-          roomCtx.strokeRect(cx, cy, cw, cd);
-        } else {
-          const cy = y + (rh / 2) - (cw / 2);
-          const cx = geometry.cutout_side === 'left' ? x : x + rw - cd;
-          roomCtx.fillRect(cx, cy, cd, cw);
-          roomCtx.strokeRect(cx, cy, cd, cw);
+      function drawDimVertical(x, y1, y2, refX, label) {
+        roomCtx.strokeStyle = "#111";
+        roomCtx.fillStyle = "#111";
+        roomCtx.lineWidth = 1;
+        roomCtx.beginPath();
+        roomCtx.moveTo(refX, y1);
+        roomCtx.lineTo(x, y1);
+        roomCtx.moveTo(refX, y2);
+        roomCtx.lineTo(x, y2);
+        roomCtx.moveTo(x, y1);
+        roomCtx.lineTo(x, y2);
+        roomCtx.stroke();
+        roomCtx.beginPath();
+        roomCtx.moveTo(x, y1);
+        roomCtx.lineTo(x - 4, y1 + 8);
+        roomCtx.lineTo(x + 4, y1 + 8);
+        roomCtx.closePath();
+        roomCtx.fill();
+        roomCtx.beginPath();
+        roomCtx.moveTo(x, y2);
+        roomCtx.lineTo(x - 4, y2 - 8);
+        roomCtx.lineTo(x + 4, y2 - 8);
+        roomCtx.closePath();
+        roomCtx.fill();
+        roomCtx.fillText(label, x - 70, (y1 + y2) / 2);
+      }
+
+      function drawRoomPlan() {
+        const geometry = getRoomGeometry();
+        const wcm = geometry.room_width_cm;
+        const hcm = geometry.room_height_cm;
+        if (!(wcm > 0) || !(hcm > 0)) {
+          return;
         }
-      }
 
-      drawDimHorizontal(x, x + rw, y - 36, y, `L = ${Math.round(wcm)} cm`);
-      drawDimVertical(x - 42, y, y + rh, x, `B = ${Math.round(hcm)} cm`);
-      roomCtx.fillStyle = '#111';
-      roomCtx.fillText(`R = ${Math.round(geometry.corner_radius_cm)} cm`, x, y + rh + 24);
-      if (geometry.cutout_side !== 'none') {
+        roomCtx.clearRect(0, 0, roomCanvas.width, roomCanvas.height);
+        roomCtx.fillStyle = "#f5f7fb";
+        roomCtx.fillRect(0, 0, roomCanvas.width, roomCanvas.height);
+        roomCtx.fillStyle = "#111";
+        roomCtx.font = "13px Segoe UI";
+
+        const maxW = 640;
+        const maxH = 360;
+        const scale = Math.min(maxW / wcm, maxH / hcm);
+        const rw = wcm * scale;
+        const rh = hcm * scale;
+        const x = 180 + (maxW - rw) / 2;
+        let y = 120 + (maxH - rh) / 2;
+
+        const extraLines = geometry.cutout_side !== "none" ? 3 : 2;
+        const footerBottom = y + rh + (24 + extraLines * 20);
+        const maxBottom = roomCanvas.height - 14;
+        if (footerBottom > maxBottom) {
+          y = Math.max(36, y - (footerBottom - maxBottom));
+        }
+
+        const r = Math.min(
+          (geometry.corner_radius_cm || 0) * scale,
+          Math.min(rw, rh) / 2,
+        );
+        roomCtx.fillStyle = "#dde5f0";
+        roomCtx.strokeStyle = "#111";
+        roomCtx.lineWidth = 2;
+        roundedRectPath(roomCtx, x, y, rw, rh, r);
+        roomCtx.fill();
+        roomCtx.stroke();
+
+        if (
+          geometry.cutout_side !== "none" &&
+          geometry.cutout_width_cm > 0 &&
+          geometry.cutout_depth_cm > 0
+        ) {
+          const cw = geometry.cutout_width_cm * scale;
+          const cd = geometry.cutout_depth_cm * scale;
+          roomCtx.fillStyle = "#f5f7fb";
+          roomCtx.strokeStyle = "#111";
+          roomCtx.lineWidth = 2;
+          if (
+            geometry.cutout_side === "top" ||
+            geometry.cutout_side === "bottom"
+          ) {
+            const cx = x + rw / 2 - cw / 2;
+            const cy = geometry.cutout_side === "top" ? y : y + rh - cd;
+            roomCtx.fillRect(cx, cy, cw, cd);
+            roomCtx.strokeRect(cx, cy, cw, cd);
+          } else {
+            const cy = y + rh / 2 - cw / 2;
+            const cx = geometry.cutout_side === "left" ? x : x + rw - cd;
+            roomCtx.fillRect(cx, cy, cd, cw);
+            roomCtx.strokeRect(cx, cy, cd, cw);
+          }
+        }
+
+        drawDimHorizontal(x, x + rw, y - 36, y, `L = ${Math.round(wcm)} cm`);
+        drawDimVertical(x - 42, y, y + rh, x, `B = ${Math.round(hcm)} cm`);
+        roomCtx.fillStyle = "#111";
         roomCtx.fillText(
-          `Aussparung: ${geometry.cutout_side.toUpperCase()} | Breite=${Math.round(geometry.cutout_width_cm)} cm | Tiefe=${Math.round(geometry.cutout_depth_cm)} cm`,
+          `R = ${Math.round(geometry.corner_radius_cm)} cm`,
           x,
-          y + rh + 44
+          y + rh + 24,
+        );
+        if (geometry.cutout_side !== "none") {
+          roomCtx.fillText(
+            `Aussparung: ${geometry.cutout_side.toUpperCase()} | Breite=${Math.round(geometry.cutout_width_cm)} cm | Tiefe=${Math.round(geometry.cutout_depth_cm)} cm`,
+            x,
+            y + rh + 44,
+          );
+        }
+        roomCtx.fillText(
+          "DIN-ähnliche Vermaßung (schematisch, nicht normgeprüft)",
+          x,
+          y + rh + 64,
         );
       }
-      roomCtx.fillText('DIN-ähnliche Vermaßung (schematisch, nicht normgeprüft)', x, y + rh + 64);
-    }
 
-    function setStatus(text) {
-      statusEl.textContent = text;
-    }
-
-    async function call(path, method = 'GET', body = null) {
-      const init = { method, headers: { 'Content-Type': 'application/json' } };
-      if (body !== null) {
-        init.body = JSON.stringify(body);
-      }
-      const response = await fetch(path, init);
-      return await response.json();
-    }
-
-    function renderSummary(data) {
-      document.getElementById('createdAt').textContent = `Erstellt am: ${data.created_at || '-'}`;
-      document.getElementById('totalAll').textContent = data.totals?.total ?? 0;
-      document.getElementById('totalObstacle').textContent = data.totals?.OBSTACLE ?? 0;
-      document.getElementById('totalClear').textContent = data.totals?.CLEAR ?? 0;
-      document.getElementById('totalOther').textContent = data.totals?.OTHER ?? 0;
-
-      const period = document.getElementById('period').value;
-      const blocks = data.blocks?.[period] || [];
-      blocksBody.innerHTML = '';
-      for (const item of blocks.slice(0, 24)) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${item.block}</td><td>${item.total}</td><td>${item.OBSTACLE}</td><td>${item.CLEAR}</td><td>${item.OTHER}</td>`;
-        blocksBody.appendChild(tr);
+      function setStatus(text) {
+        statusEl.textContent = text;
       }
 
-      recentBody.innerHTML = '';
-      for (const entry of (data.recent || []).slice(0, 40)) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${entry.created_at || ''}</td>
-          <td>${entry.room_name || '-'}</td>
-          <td>${entry.distance_cm ?? ''}</td>
-          <td>${entry.safe_distance_cm ?? ''}</td>
-          <td>${entry.decision || ''}</td>
-          <td>${entry.command || ''}</td>
-        `;
-        recentBody.appendChild(tr);
-      }
-
-      setStatus(`Status: Quelle=${data.source} | Einträge=${data.totals?.total ?? 0}`);
-    }
-
-    async function refresh() {
-      try {
-        const data = await call('/api/summary?limit=2000');
-        if (!data.ok) {
-          setStatus(`Status: Fehler: ${data.message || 'unbekannt'}`);
-          return;
+      async function call(path, method = "GET", body = null) {
+        const init = {
+          method,
+          headers: { "Content-Type": "application/json" },
+        };
+        if (body !== null) {
+          init.body = JSON.stringify(body);
         }
-        renderSummary(data);
-        await refreshExports();
-      } catch {
-        setStatus('Status: API nicht erreichbar');
+        const response = await fetch(path, init);
+        return await response.json();
       }
-    }
 
-    async function refreshExports() {
-      try {
-        const data = await call('/api/exports?limit=10');
-        if (!data.ok) {
-          return;
+      function renderSummary(data) {
+        document.getElementById("createdAt").textContent =
+          `Erstellt am: ${data.created_at || "-"}`;
+        document.getElementById("totalAll").textContent =
+          data.totals?.total ?? 0;
+        document.getElementById("totalObstacle").textContent =
+          data.totals?.OBSTACLE ?? 0;
+        document.getElementById("totalClear").textContent =
+          data.totals?.CLEAR ?? 0;
+        document.getElementById("totalOther").textContent =
+          data.totals?.OTHER ?? 0;
+
+        const period = document.getElementById("period").value;
+        const blocks = data.blocks?.[period] || [];
+        blocksBody.innerHTML = "";
+        for (const item of blocks.slice(0, 24)) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${item.block}</td><td>${item.total}</td><td>${item.OBSTACLE}</td><td>${item.CLEAR}</td><td>${item.OTHER}</td>`;
+          blocksBody.appendChild(tr);
         }
 
-        exportsBody.innerHTML = '';
-        for (const item of (data.exports || [])) {
-          const tr = document.createElement('tr');
+        recentBody.innerHTML = "";
+        for (const entry of (data.recent || []).slice(0, 40)) {
+          const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td>${item.created_at || ''}</td>
-            <td>${item.room_name || '-'}</td>
-            <td>${item.period || '-'}</td>
-            <td>${item.filename || ''}</td>
-            <td><a href="${item.download_url}" style="color:#7ab4ff;">Download</a></td>
-          `;
-          exportsBody.appendChild(tr);
+              <td>${entry.created_at || ""}</td>
+              <td>${entry.room_name || "-"}</td>
+              <td>${entry.distance_cm ?? ""}</td>
+              <td>${entry.safe_distance_cm ?? ""}</td>
+              <td>${entry.decision || ""}</td>
+              <td>${entry.command || ""}</td>
+            `;
+          recentBody.appendChild(tr);
         }
-      } catch {
+
+        setStatus(
+          `Status: Quelle=${data.source} | Einträge=${data.totals?.total ?? 0}`,
+        );
       }
-    }
 
-    document.getElementById('refreshBtn').addEventListener('click', refresh);
-    document.getElementById('period').addEventListener('change', refresh);
-    ['roomWidth', 'roomHeight', 'cornerRadius', 'cutoutSide', 'cutoutWidth', 'cutoutDepth'].forEach((id) => {
-      document.getElementById(id).addEventListener('input', drawRoomPlan);
-      document.getElementById(id).addEventListener('change', drawRoomPlan);
-    });
-
-    document.getElementById('exportBtn').addEventListener('click', async () => {
-      const room_name = document.getElementById('roomName').value.trim() || 'Unbekanntes_Zimmer';
-      const geometry = getRoomGeometry();
-      const period = document.getElementById('period').value;
-
-      try {
-        const data = await call('/api/export-jpg', 'POST', {
-          room_name,
-          room_width_cm: geometry.room_width_cm,
-          room_height_cm: geometry.room_height_cm,
-          corner_radius_cm: geometry.corner_radius_cm,
-          cutout_side: geometry.cutout_side,
-          cutout_width_cm: geometry.cutout_width_cm,
-          cutout_depth_cm: geometry.cutout_depth_cm,
-          period,
-        });
-        if (data.ok) {
-          setStatus(`Status: ${data.message}`);
-          lastDownloadUrl = data.download_url || '';
-          downloadBtn.disabled = !lastDownloadUrl;
-          lastExportInfoEl.textContent = `Letzter Export: ${data.filename || '-'} | Erstellt am: ${data.created_at || '-'}`;
+      async function refresh() {
+        try {
+          const data = await call("/api/summary?limit=2000");
+          if (!data.ok) {
+            setStatus(`Status: Fehler: ${data.message || "unbekannt"}`);
+            return;
+          }
+          renderSummary(data);
           await refreshExports();
-        } else {
-          setStatus(`Status: Export fehlgeschlagen: ${data.message}`);
+        } catch {
+          setStatus("Status: API nicht erreichbar");
         }
-      } catch {
-        setStatus('Status: Export-API nicht erreichbar');
-      }
-    });
-
-    downloadBtn.addEventListener('click', () => {
-      if (!lastDownloadUrl) {
-        setStatus('Status: Kein Export zum Download vorhanden');
-        return;
       }
 
-      window.location.href = lastDownloadUrl;
-    });
+      async function refreshExports() {
+        try {
+          const data = await call("/api/exports?limit=1");
+          if (!data.ok || !data.exports || data.exports.length === 0) {
+            lastDownloadUrl = "";
+            downloadBtn.disabled = true;
+            lastExportInfoEl.textContent = "Letzter Export: -";
+            return;
+          }
+          // Nur den letzten Export nehmen
+          const last = data.exports[0];
+          lastDownloadUrl = last.download_url || "";
+          downloadBtn.disabled = !lastDownloadUrl;
+          lastExportInfoEl.textContent = `Letzter Export: ${last.filename || "-"} | Erstellt am: ${last.created_at || "-"}`;
 
-    drawRoomPlan();
-    refresh();
-  </script>
-</body>
+          // Historie weiterhin anzeigen
+          const dataAll = await call("/api/exports?limit=10");
+          exportsBody.innerHTML = "";
+          for (const item of dataAll.exports || []) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${item.created_at || ""}</td>
+                <td>${item.room_name || "-"}</td>
+                <td>${item.period || "-"}</td>
+                <td>${item.filename || ""}</td>
+                <td><a href="${item.download_url}" style="color:#7ab4ff;">Download</a></td>
+              `;
+            exportsBody.appendChild(tr);
+          }
+        } catch {
+          lastDownloadUrl = "";
+          downloadBtn.disabled = true;
+          lastExportInfoEl.textContent =
+            "Letzter Export: - (Fehler beim Laden)";
+        }
+      }
+
+      document.getElementById("refreshBtn").addEventListener("click", refresh);
+      document.getElementById("period").addEventListener("change", refresh);
+      [
+        "roomWidth",
+        "roomHeight",
+        "cornerRadius",
+        "cutoutSide",
+        "cutoutWidth",
+        "cutoutDepth",
+      ].forEach((id) => {
+        document.getElementById(id).addEventListener("input", drawRoomPlan);
+        document.getElementById(id).addEventListener("change", drawRoomPlan);
+      });
+
+      // Dropdown-Logik für Exporte
+      async function refreshExports() {
+        try {
+          const data = await call("/api/exports?limit=10");
+          exportList = data.exports || [];
+          // Dropdown füllen
+          exportSelect.innerHTML = "";
+          if (!data.ok || exportList.length === 0) {
+            lastDownloadUrl = "";
+            selectedDownloadUrl = "";
+            downloadBtn.disabled = true;
+            lastExportInfoEl.textContent = "Letzter Export: -";
+            const opt = document.createElement("option");
+            opt.value = "";
+            opt.textContent = "Keine Exporte vorhanden";
+            exportSelect.appendChild(opt);
+          } else {
+            exportList.forEach((item, idx) => {
+              const opt = document.createElement("option");
+              opt.value = item.download_url;
+              opt.textContent = `${item.filename} (${item.created_at || "-"})`;
+              exportSelect.appendChild(opt);
+            });
+            // Standard: erster Eintrag
+            selectedDownloadUrl = exportList[0].download_url || "";
+            exportSelect.value = selectedDownloadUrl;
+            downloadBtn.disabled = !selectedDownloadUrl;
+            lastExportInfoEl.textContent = `Letzter Export: ${exportList[0].filename || "-"} | Erstellt am: ${exportList[0].created_at || "-"}`;
+          }
+          // Historie weiterhin anzeigen
+          exportsBody.innerHTML = "";
+          for (const item of exportList) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                  <td>${item.created_at || ""}</td>
+                  <td>${item.room_name || "-"}</td>
+                  <td>${item.period || "-"}</td>
+                  <td>${item.filename || ""}</td>
+                  <td><a href="${item.download_url}" style="color:#7ab4ff;">Download</a></td>
+                `;
+            exportsBody.appendChild(tr);
+          }
+        } catch {
+          lastDownloadUrl = "";
+          selectedDownloadUrl = "";
+          downloadBtn.disabled = true;
+          lastExportInfoEl.textContent =
+            "Letzter Export: - (Fehler beim Laden)";
+        }
+      }
+
+      exportSelect.addEventListener("change", () => {
+        selectedDownloadUrl = exportSelect.value;
+        downloadBtn.disabled = !selectedDownloadUrl;
+      });
+
+      downloadBtn.addEventListener("click", () => {
+        if (!selectedDownloadUrl) {
+          setStatus("Status: Kein Export zum Download vorhanden");
+          return;
+        }
+        window.location.href = selectedDownloadUrl;
+      });
+
+      drawRoomPlan();
+      refresh();
+    </script>
+  </body>
 </html>

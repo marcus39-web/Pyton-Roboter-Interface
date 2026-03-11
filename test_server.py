@@ -1,6 +1,11 @@
+# HINWEIS:
+# Dieser Mock-Server simuliert die Roboter-Kommunikation für lokale Tests.
+# Er ermöglicht Entwicklung und Test ohne echte Hardware.
+# Für spätere Hardware-Integration kann die Logik angepasst oder ersetzt werden.
+
 import socket
-import threading
-import time
+import threading  # type: ignore
+import time  # type: ignore
 
 def run_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

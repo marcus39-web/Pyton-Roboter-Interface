@@ -1,7 +1,14 @@
+# HINWEIS:
+# Diese Datei ist für Simulation und Test ohne echte Roboter-Hardware ausgelegt.
+# Die Architektur ist so gestaltet, dass später echte Roboter einfach integriert werden können.
+# Für Bewerbungen und Demonstrationen genügt die Simulation – Hardware kann später ergänzt werden.
+
 import json
 import os
+
 from pathlib import Path
 from datetime import datetime
+from typing import Any
 
 from basis_class import BrainBotRemote
 
@@ -21,8 +28,8 @@ def decide_action(distance_cm: int, safe_distance_cm: int = 30) -> str:
 def load_simulation_data() -> tuple[list[int], int]:
     """Lädt Simulationsdaten aus JSON; bei Fehlern werden sichere Standardwerte genutzt."""
     # Fallback-Werte für den Offline-Test ohne Hardware.
-    default_distances = [85, 60, 45, 28, 22, 50]
-    default_safe_distance = 30
+    default_distances: list[int] = [85, 60, 45, 28, 22, 50]
+    default_safe_distance: int = 30
     data_file = Path(__file__).with_name("simulation_data.json")
 
     if not data_file.exists():
@@ -32,14 +39,15 @@ def load_simulation_data() -> tuple[list[int], int]:
         with data_file.open("r", encoding="utf-8") as file:
             data = json.load(file)
 
-        # Werte aus Datei übernehmen (falls vorhanden), sonst Fallback.
-        distances = data.get("distances_cm", default_distances)                                                                                                                                                                                                     
+        distances_raw = data.get("distances_cm", default_distances)
+        # Versuche, alle Werte als int zu interpretieren
+        if isinstance(distances_raw, list):
+            distances: list[int] = [int(x) for x in distances_raw if isinstance(x, (int, float, str)) and str(x).isdigit()]  # type: ignore
+        else:
+            distances = default_distances
         safe_distance = int(data.get("safe_distance_cm", default_safe_distance))
 
         # Nur int-Listen zulassen, damit die KI-Regel konsistent bleibt.
-        if not isinstance(distances, list) or not all(isinstance(value, int) for value in distances):
-            return default_distances, default_safe_distance
-                                                                                           
         return distances, safe_distance
     except (OSError, ValueError, TypeError, json.JSONDecodeError):
         return default_distances, default_safe_distance
@@ -51,11 +59,11 @@ def log_training_sample(
     decision: str,
     command: str,
     room_name: str = "",
-    categorization_db: "CategorizationDatabase | None" = None,
+        categorization_db: Any = None,
 ) -> None:
     """Speichert einen Trainingsdatensatz (JSONL) für spätere Modell-Trainingsläufe."""
     training_file = Path(__file__).with_name("learning_data.jsonl")
-    sample = {
+    sample: dict[str, object] = {
         "timestamp": datetime.now().isoformat(timespec="seconds"),
         "distance_cm": distance_cm,
         "safe_distance_cm": safe_distance_cm,
@@ -83,11 +91,11 @@ def log_training_sample(
 def main():
     room_name = os.getenv("ROOM_NAME", "Unbekanntes_Zimmer").strip() or "Unbekanntes_Zimmer"
 
-    db = None
+    db: Any = None
     if CategorizationDatabase is not None:
         db = CategorizationDatabase.from_env()
         if db.enabled:
-            ok, message = db.initialize()
+            _, message = db.initialize()
             print(f"🗄️ MySQL: {message}")
 
     # 1. Instanz erstellen (für lokalen Test!)

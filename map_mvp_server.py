@@ -7,12 +7,25 @@ from datetime import datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+# Typing für explizite Typen (wichtig für statische Analyse und spätere Hardware-Integration)
+from typing import Any, Dict, List, Optional
 
 
 class MapSimulation:
-    """Lokale Kartierungs-Simulation für mehrere virtuelle Roboter."""
+    """
+    Lokale Kartierungs-Simulation für mehrere virtuelle Roboter.
+
+    Hinweis für Bewerbungen:
+    Diese Klasse simuliert Roboter vollständig ohne Hardware. Die Architektur ist so gestaltet,
+    dass später echte Roboter einfach ergänzt werden können (z.B. durch Ersetzen oder Erweitern
+    dieser Klasse). Alle API- und Webfunktionen funktionieren unabhängig von echter Hardware.
+    """
 
     def __init__(self) -> None:
+        # Typ: Liste von Roboter-Dictionaries (für Simulation, später ggf. eigene Roboterklasse)
+        self.robots: List[Dict[str, Any]] = []
+        # Typ: Liste von Hindernis-Dictionaries
+        self.obstacles: List[Dict[str, Any]] = []
         self._lock = threading.Lock()
         self.width = 900
         self.height = 600
@@ -24,6 +37,8 @@ class MapSimulation:
         self._init_world()
 
     def _init_world(self) -> None:
+        # Hier werden die Hindernisse und Roboter für die Simulation initialisiert.
+        # Für echte Hardware kann die Roboter-Liste später durch echte Instanzen ersetzt werden.
         # Feste Hindernisse für reproduzierbare Tests.
         self.obstacles = [
             {"x": 220, "y": 120, "w": 140, "h": 90},
@@ -32,6 +47,7 @@ class MapSimulation:
         ]
 
         # Drei virtuelle Roboter mit eigener Spur.
+        # → Für echte Hardware kann hier später die Initialisierung echter Roboter erfolgen.
         self.robots = [
             {
                 "id": "R1",
@@ -73,6 +89,8 @@ class MapSimulation:
             self._init_world()
 
     def step(self) -> None:
+        # Diese Methode steuert die Bewegung der simulierten Roboter.
+        # Für echte Roboter kann hier die Ansteuerung der Hardware ergänzt werden.
         with self._lock:
             self._step_unlocked()
 
@@ -101,7 +119,10 @@ class MapSimulation:
             if len(robot["trail"]) > 180:
                 robot["trail"] = robot["trail"][-180:]
 
-    def get_state(self) -> dict:
+    def get_state(self) -> Dict[str, Any]:
+        # Rückgabetyp explizit für statische Analyse. Für Hardware ggf. anpassen.
+        # Gibt den aktuellen Zustand der Simulation zurück.
+        # Für echte Roboter kann hier der Live-Status der Hardware integriert werden.
         with self._lock:
             if self.running:
                 self._step_unlocked()
@@ -119,7 +140,8 @@ class MapSimulation:
                 "robots": self.robots,
             }
 
-    def _snapshot_payload_unlocked(self) -> dict:
+    def _snapshot_payload_unlocked(self) -> Dict[str, Any]:
+        # Rückgabetyp explizit für statische Analyse. Für Hardware ggf. anpassen.
         """Erzeugt einen serialisierbaren Stand der aktuellen Simulation."""
         return {
             "version": 1,
@@ -134,9 +156,10 @@ class MapSimulation:
             "robots": self.robots,
         }
 
-    def list_snapshots(self) -> list[dict]:
+    def list_snapshots(self) -> List[Dict[str, Any]]:
+        # Rückgabetyp explizit für statische Analyse. Für Hardware ggf. anpassen.
         """Liefert vorhandene Snapshot-Dateien (neueste zuerst)."""
-        items: list[dict] = []
+        items: List[Dict[str, Any]] = []
         for file in sorted(self.snapshot_dir.glob("*.json"), key=lambda f: f.stat().st_mtime, reverse=True):
             items.append(
                 {
@@ -147,7 +170,8 @@ class MapSimulation:
             )
         return items
 
-    def save_snapshot(self, name: str | None = None) -> tuple[bool, str, str | None]:
+    def save_snapshot(self, name: Optional[str] = None) -> tuple[bool, str, Optional[str]]:
+        # Typen für Snapshot-Name und Rückgabe explizit.
         """Speichert den aktuellen Kartenstand in eine JSON-Datei."""
         with self._lock:
             clean_name = (name or "").strip().replace(" ", "_")
@@ -174,6 +198,7 @@ class MapSimulation:
             return True, f"Snapshot gespeichert: {filename}", filename
 
     def load_snapshot(self, filename: str) -> tuple[bool, str]:
+        # Typen für Rückgabe explizit.
         """Lädt einen Snapshot und setzt den Simulationszustand zurück."""
         # Pfadmanipulation verhindern.
         safe_name = Path(filename).name
@@ -219,10 +244,11 @@ class MapSimulation:
 class MapHandler(BaseHTTPRequestHandler):
     """HTTP-Handler für Kartierungs-UI und Simulations-API."""
 
-    simulation: MapSimulation | None = None
+    simulation: Optional[MapSimulation] = None  # Typ explizit für statische Analyse
     web_dir = Path(__file__).with_name("web_map")
 
-    def _send_json(self, payload: dict, status: int = HTTPStatus.OK) -> None:
+    def _send_json(self, payload: Dict[str, Any], status: int = HTTPStatus.OK) -> None:
+        # Typen explizit für statische Analyse und spätere Hardware-Integration
         raw = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -238,7 +264,8 @@ class MapHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(raw)
 
-    def _read_json(self) -> dict:
+    def _read_json(self) -> Dict[str, Any]:
+        # Typen explizit für statische Analyse und spätere Hardware-Integration
         length = int(self.headers.get("Content-Length", "0"))
         if length == 0:
             return {}
@@ -258,10 +285,14 @@ class MapHandler(BaseHTTPRequestHandler):
             if self.simulation is None:
                 self._send_json({"ok": False, "message": "simulation nicht initialisiert"}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
                 return
-            self._send_json(self.simulation.get_state())
+            self._send_json(self.simulation.get_state())  # type: ignore
             return
 
         if self.path == "/api/snapshots":
+            # Fehlerbehandlung: simulation kann None sein
+            if self.simulation is None:
+                self._send_json({"ok": False, "message": "simulation nicht initialisiert"}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                return
             self._send_json({"ok": True, "snapshots": self.simulation.list_snapshots()})
             return
 
@@ -331,7 +362,7 @@ class MapHandler(BaseHTTPRequestHandler):
 
         self._send_json({"ok": False, "message": "not found"}, status=HTTPStatus.NOT_FOUND)
 
-    def log_message(self, format: str, *args) -> None:
+    def log_message(self, format: str, *args: object) -> None:
         return
 
 
@@ -340,7 +371,7 @@ def run_server(host: str, web_port: int) -> None:
     simulation = MapSimulation()
     MapHandler.simulation = simulation
 
-    server = ThreadingHTTPServer((host, web_port), MapHandler)
+    server = ThreadingHTTPServer((host, web_port), MapHandler)  # type: ignore
     print("=" * 58)
     print(f"🗺️  Kartierungs-MVP läuft: http://{host}:{web_port}")
     print("🤖 Virtuelle Roboter aktiv: R1, R2, R3")
