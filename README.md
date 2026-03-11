@@ -1,17 +1,3 @@
-# BrainBot AI - Python Roboter-Interface (OOP)
-
-Objektorientierte Python-Schnittstelle zur Fernsteuerung des BrainBot Roboters über TCP/IP.
-
-# KI-Integration (Künstliche Intelligenz)
-
-Dieses Projekt nutzt KI-Methoden, um den Roboter intelligenter zu steuern und Entscheidungen datenbasiert zu treffen. Die KI-Integration ist modular aufgebaut und kann erweitert werden.
-
-## Überblick
-
-- **Lernmodus:** Während der Nutzung werden alle gesendeten Befehle und Sensordaten in `learning_data.jsonl` gespeichert. Diese Daten dienen als Trainingsgrundlage für Machine-Learning-Modelle.
-- **Kategorisierung:** Für die Raum- und Objektkategorisierung können ML-Modelle genutzt werden, um z. B. Räume automatisch zu erkennen oder Aktionen zu klassifizieren.
-- **Entscheidungslogik:** Die Entscheidungsfindung kann durch trainierte Modelle (z. B. Klassifikatoren) unterstützt werden.
-
 ## Live-Webansicht (Kategorisierung)
 
 Das Projekt bietet eine moderne Live-Weboberfläche für die Kategorisierung und Datenbank-Visualisierung.
