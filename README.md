@@ -24,6 +24,25 @@ pip install -r requirements.txt
 
 ---
 
+## Netzwerk & WLAN-Anbindung
+
+Die Kommunikation mit dem Roboter erfolgt über TCP/IP – typischerweise per WLAN. Die IP-Adresse des Roboters wird beim Start angegeben (z.B. `192.168.1.100` für WLAN, `127.0.0.1` für lokale Tests). Die Verbindung wird durch die Klasse `BrainBotRemote` aufgebaut:
+
+- **Verbindung:**
+  ```python
+  robot = BrainBotRemote(robot_ip="192.168.1.100", port=5000)
+  robot.connect()
+  ```
+- **Heartbeat:**
+  Ein regelmäßiges Lebenszeichen (Heartbeat) sorgt für Sicherheit: Bei WLAN-Abbruch wird der Roboter automatisch gestoppt.
+- **Fehlerbehandlung:**
+  - Verbindungsabbrüche (z.B. durch schwaches WLAN) werden erkannt und führen zu Not-Aus.
+  - Alle Aktionen und Fehler werden in `robot_log.txt` protokolliert.
+- **Tipp:**
+  - Bei Problemen: IP-Adresse prüfen, Roboter und PC im selben WLAN, Firewall-Einstellungen kontrollieren.
+
+---
+
 ## Installation & Setup
 
 1. **Repository klonen:**
