@@ -1,33 +1,41 @@
-# Lizenz
+# BrainBot AI - Python Roboter-Interface (OOP)
 
-Dieses Projekt steht unter der MIT-Lizenz. Siehe Datei LICENSE für Details.
-# Web-Live-Ansicht & Troubleshooting
+Objektorientierte Python-Schnittstelle zur Fernsteuerung des BrainBot Roboters über TCP/IP.
 
-Das Projekt bietet eine Live-Weboberfläche für Simulation, Kategorisierung und Datenbank-Visualisierung.
+# KI-Integration (Künstliche Intelligenz)
 
-**So startest du die Weboberfläche:**
+Dieses Projekt nutzt KI-Methoden, um den Roboter intelligenter zu steuern und Entscheidungen datenbasiert zu treffen. Die KI-Integration ist modular aufgebaut und kann erweitert werden.
+
+## Überblick
+
+- **Lernmodus:** Während der Nutzung werden alle gesendeten Befehle und Sensordaten in `learning_data.jsonl` gespeichert. Diese Daten dienen als Trainingsgrundlage für Machine-Learning-Modelle.
+- **Kategorisierung:** Für die Raum- und Objektkategorisierung können ML-Modelle genutzt werden, um z. B. Räume automatisch zu erkennen oder Aktionen zu klassifizieren.
+- **Entscheidungslogik:** Die Entscheidungsfindung kann durch trainierte Modelle (z. B. Klassifikatoren) unterstützt werden.
+
+## Live-Webansicht (Kategorisierung)
+
+Das Projekt bietet eine moderne Live-Weboberfläche für die Kategorisierung und Datenbank-Visualisierung.
+
+**So startest du die Kategorisierungs-Webansicht:**
 
 1. Terminal öffnen und ins Projektverzeichnis wechseln.
-2. Einen der folgenden Server starten:
-   - **Simulation/Kartierung:**
-     ```
-     python map_mvp_server.py --host 0.0.0.0 --web-port 8090
-     ```
-     → Im Browser öffnen: [http://127.0.0.1:8090](http://127.0.0.1:8090)
-   - **Kategorisierung/Report:**
-     ```
-     python categorization_report_server.py --host 0.0.0.0 --web-port 8092
-     ```
-     → Im Browser öffnen: [http://127.0.0.1:8092](http://127.0.0.1:8092)
+2. Server starten:
+   ```
+   python categorization_report_server.py --host 0.0.0.0 --web-port 8092
+   ```
+3. Im Browser öffnen: [http://127.0.0.1:8092](http://127.0.0.1:8092)
 
-**Wichtig:**
+**Hinweise:**
 
-- Die Seite ist nur erreichbar, wenn der zugehörige Python-Server läuft.
+- Die Seite ist nur erreichbar, wenn der Python-Server läuft.
 - Bei Verbindungsfehlern: Terminal prüfen, ob der Server gestartet ist und keine Fehlermeldung anzeigt.
-- Port ggf. anpassen, falls schon belegt.
 - Im Browser ggf. mit F5 aktualisieren.
 
 ---
+
+# Lizenz
+
+Dieses Projekt steht unter der MIT-Lizenz. Siehe Datei LICENSE für Details.
 
 # BrainBot AI - Python Roboter-Interface (OOP)
 
@@ -261,7 +269,6 @@ python web_control_server.py --host 0.0.0.0 --web-port 8080 --robot-ip 127.0.0.1
 📖 **Kartierungs-MVP Tests:** Siehe `README_TEST/README_MAP_MVP_TESTS.md`
 📖 **Kategorisierungstests:** Siehe `README_TEST/README_KATAGO__TESTS.md`
 
-
 ### 📊 Kategorisierungsausgabe (Tag/Woche/Monat/Jahr + JPG)
 
 Die zentrale Webansicht für die Kategorisierung läuft immer auf **Port 8092**. Damit hast du jederzeit Zugriff auf die aktuelle Raum- und Kategorisierungsübersicht sowie alle Exportfunktionen.
@@ -269,14 +276,15 @@ Die zentrale Webansicht für die Kategorisierung läuft immer auf **Port 8092**.
 **So funktioniert es:**
 
 1. Im Terminal folgenden Befehl ausführen:
-    ```bash
-    python categorization_report_server.py --host 0.0.0.0 --web-port 8092
-    ```
+   ```bash
+   python categorization_report_server.py --host 0.0.0.0 --web-port 8092
+   ```
 2. Im Browser öffnen:
-    - PC: [http://127.0.0.1:8092](http://127.0.0.1:8092)
-    - iPhone (im gleichen WLAN): `http://<PC-IP>:8092`
+   - PC: [http://127.0.0.1:8092](http://127.0.0.1:8092)
+   - iPhone (im gleichen WLAN): `http://<PC-IP>:8092`
 
 **Features der Webansicht:**
+
 - Blockansicht in Tag/Woche/Monat/Jahr
 - Tabellenansicht mit `Erstellt am`, `Zimmername`, Distanz, Kategorie, Kommando
 - JPG-Export mit Metadaten (`Erstellt am`, Zimmername, Vermaßung)
@@ -286,6 +294,7 @@ Die zentrale Webansicht für die Kategorisierung läuft immer auf **Port 8092**.
 - Export-Historie: letzte 10 JPG-Dateien mit Klick-Download
 
 **Export-Dateien:**
+
 - JPG-Ausgaben liegen lokal unter `categorization_exports/`
 - Export-Log für spätere Erweiterungen: `categorization_exports/exports_log.jsonl`
 
